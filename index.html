@@ -375,6 +375,11 @@
             border: 1px solid var(--danger);
             color: var(--danger);
         }
+        .btn-danger-solid {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
         .btn-sm {
             padding: 7px 14px;
             font-size: 11px;
@@ -586,6 +591,11 @@
             color: #00b8ff;
             border: 1px solid #0d2a3d;
         }
+        .tag-skipped {
+            background: #1a1a00;
+            color: #888800;
+            border: 1px solid #2a2a00;
+        }
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -642,12 +652,12 @@
             display: flex;
             gap: 6px;
             align-items: center;
-            margin-top: 8px;
+            margin-bottom: 6px;
             flex-wrap: wrap;
         }
         .inline-edit input {
             flex: 1;
-            min-width: 80px;
+            min-width: 60px;
             padding: 8px 10px;
             font-size: 11px;
         }
@@ -664,6 +674,44 @@
             border-radius: var(--radius-sm);
             padding: 10px 14px;
             margin-top: 8px;
+        }
+        /* Чекбоксы для очистки */
+        .checkbox-cell {
+            width: 30px;
+            text-align: center;
+        }
+        .checkbox-cell input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+            margin: 0;
+        }
+        .select-all-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--sub);
+        }
+        .select-all-bar input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+        .danger-zone {
+            border: 1px solid var(--danger);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-top: 12px;
+        }
+        .danger-zone h3 {
+            color: var(--danger);
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-family: var(--font-mono);
         }
     </style>
 </head>
@@ -691,6 +739,7 @@
             <button class="tab active" onclick="switchTab('scan')">📷 СКАНЕР</button>
             <button class="tab" onclick="switchTab('stock')">📋 ОСТАТКИ</button>
             <button class="tab" onclick="switchTab('ops')">⚙️ ОПЕРАЦИИ</button>
+            <button class="tab" onclick="switchTab('clear')">🗑 ОЧИСТКА</button>
         </div>
 
         <!-- СКАНЕР -->
@@ -728,7 +777,7 @@
             <div class="card">
                 <div class="card-header"><span class="icon">📥</span><h2>Пакетная загрузка</h2></div>
                 <p style="font-size:11px;color:var(--sub);margin-bottom:12px;font-family:var(--font-mono);">
-                    Файл TXT, CSV или вставка списка штрихкодов.<br>Неизвестные штрихкоды будут добавлены как новые товары.
+                    Файл TXT, CSV или вставка списка.<br>Принимаются только 13-значные штрихкоды (EAN-13).<br>Даты, время и прочие данные игнорируются.
                 </p>
                 <select id="batchOpType" onchange="updateBatchUI()" style="margin-bottom:8px;">
                     <option value="receipt">📥 ПРИЁМКА (добавить на остатки)</option>
@@ -746,7 +795,7 @@
                 </div>
                 <input type="file" id="fileInput" accept=".txt,.csv,.tsv" style="display:none;" onchange="handleFileUpload(event)">
                 <div style="text-align:center;color:#444;font-size:11px;margin:10px 0;font-family:var(--font-mono);">— ИЛИ —</div>
-                <textarea id="batchText" placeholder="Вставьте список штрихкодов...&#10;Например:&#10;4810000001&#10;4810000002&#10;4810000099&#10;4810000001"></textarea>
+                <textarea id="batchText" placeholder="Вставьте список штрихкодов...&#10;Например:&#10;4099683831489&#10;4099683831496&#10;4099683831502"></textarea>
                 <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="parseBatchText()">🔍 ОБРАБОТАТЬ СПИСОК</button>
             </div>
 
@@ -758,11 +807,14 @@
                     <table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th><th>В нал.</th><th>Статус</th></tr></thead>
                         <tbody id="batchTableBody"></tbody></table>
                 </div>
-                <!-- Блок для новых товаров -->
+                <div id="skippedSection" class="hidden highlight-box">
+                    <p style="font-size:11px;color:var(--warning);font-family:var(--font-mono);margin-bottom:4px;">⏭ ПРОПУЩЕНО (не EAN-13)</p>
+                    <div id="skippedList" style="font-size:10px;color:var(--sub);word-break:break-all;"></div>
+                </div>
                 <div id="newProductsSection" class="hidden highlight-box">
                     <p style="font-size:11px;color:var(--accent2);font-family:var(--font-mono);margin-bottom:8px;">🆕 НОВЫЕ ШТРИХКОДЫ (будут добавлены в базу)</p>
                     <div id="newProductsList"></div>
-                    <p class="help-text">Заполните данные для новых товаров или оставьте поля пустыми — будет присвоен артикул «NEW» и название «Новый товар».</p>
+                    <p class="help-text">Заполните данные или нажмите «АВТОЗАПОЛНИТЬ».</p>
                     <button class="btn btn-sm btn-outline" style="margin-top:6px;" onclick="autoFillNewProducts()">⚡ АВТОЗАПОЛНИТЬ</button>
                 </div>
                 <div class="btn-group" style="margin-top:12px;">
@@ -774,7 +826,7 @@
             <!-- Ручная приёмка -->
             <div class="card">
                 <div class="card-header"><span class="icon">📥</span><h2>Ручная приёмка</h2></div>
-                <div class="input-row"><input type="text" id="receiptBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="addToReceipt()">➕</button></div>
+                <div class="input-row"><input type="text" id="receiptBarcode" placeholder="Штрихкод (13 цифр)"><button class="btn btn-outline btn-sm" onclick="addToReceipt()">➕</button></div>
                 <select id="receiptStore" style="margin-bottom:8px;"><option value="main">🏪 ОСНОВНОЙ</option><option value="lenina">🏪 ЛЕНИНА</option></select>
                 <div class="table-wrap" id="receiptTableWrap" style="display:none;"><table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead><tbody id="receiptBody"></tbody></table></div>
                 <p id="receiptCount" style="font-size:11px;color:var(--sub);font-family:var(--font-mono);"></p>
@@ -789,10 +841,44 @@
                     <select id="transferFrom"><option value="main">ОТКУДА: ОСНОВНОЙ</option><option value="lenina">ОТКУДА: ЛЕНИНА</option></select>
                     <select id="transferTo"><option value="lenina">КУДА: ЛЕНИНА</option><option value="main">КУДА: ОСНОВНОЙ</option></select>
                 </div>
-                <div class="input-row"><input type="text" id="transferBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="addToTransfer()">➕</button></div>
+                <div class="input-row"><input type="text" id="transferBarcode" placeholder="Штрихкод (13 цифр)"><button class="btn btn-outline btn-sm" onclick="addToTransfer()">➕</button></div>
                 <div class="table-wrap" id="transferTableWrap" style="display:none;"><table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead><tbody id="transferBody"></tbody></table></div>
                 <button class="btn btn-accent" id="finishTransferBtn" style="display:none;width:100%;" onclick="finishTransfer()">🚚 ВЫПОЛНИТЬ</button>
                 <button class="btn btn-outline btn-sm" id="clearTransferBtn" style="display:none;" onclick="clearTransfer()">🗑 ОЧИСТИТЬ</button>
+            </div>
+        </div>
+
+        <!-- ОЧИСТКА ОСТАТКОВ -->
+        <div id="tab-clear" class="hidden">
+            <div class="card">
+                <div class="card-header"><span class="icon">🗑</span><h2>Очистка остатков — <span id="clearStoreLabel">ОСНОВНОЙ</span></h2></div>
+                <p style="font-size:11px;color:var(--sub);margin-bottom:12px;font-family:var(--font-mono);">
+                    Выберите товары для удаления из остатков текущего магазина.
+                </p>
+                <div class="select-all-bar">
+                    <input type="checkbox" id="selectAllClear" onchange="toggleSelectAllClear()">
+                    <label for="selectAllClear" style="cursor:pointer;">ВЫБРАТЬ ВСЕ</label>
+                    <span id="selectedCount" style="margin-left:auto;">0</span>
+                </div>
+                <div class="table-wrap">
+                    <table id="clearTable">
+                        <thead><tr><th class="checkbox-cell">☐</th><th>Штрихкод</th><th>Название</th><th>Размер</th><th>Остаток</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-danger-solid" style="width:100%;margin-top:12px;" onclick="deleteSelected()" id="deleteSelectedBtn" disabled>
+                    🗑 УДАЛИТЬ ВЫБРАННЫЕ
+                </button>
+
+                <div class="danger-zone">
+                    <h3>⚠️ ПОЛНАЯ ОЧИСТКА</h3>
+                    <p style="font-size:10px;color:var(--sub);margin-bottom:10px;font-family:var(--font-mono);">
+                        Удаляет ВСЕ остатки из магазина «<span id="dangerStoreLabel">ОСНОВНОЙ</span>». Данные о товарах сохранятся.
+                    </p>
+                    <button class="btn btn-danger-solid" style="width:100%;" onclick="clearAllStock()">
+                        🗑 ОЧИСТИТЬ ВСЕ ОСТАТКИ В ЭТОМ МАГАЗИНЕ
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -843,37 +929,37 @@
 
         function getDefaultProducts() {
             return {
-                '4810000001': { article: '3345', name: 'Кардиган серый', size: 'M', price: 3900 },
-                '4810000002': { article: '3345', name: 'Кардиган серый', size: 'S', price: 3900 },
-                '4810000003': { article: '5520', name: 'Брюки чёрные', size: '42', price: 4200 },
-                '4810000004': { article: '5520', name: 'Брюки чёрные', size: '44', price: 4200 },
-                '4810000005': { article: '7780', name: 'Рубашка белая', size: '40', price: 2800 },
-                '4810000006': { article: '7780', name: 'Рубашка белая', size: '42', price: 2800 },
-                '4810000007': { article: '9901', name: 'Платье летнее', size: 'S', price: 5100 },
-                '4810000008': { article: '9901', name: 'Платье летнее', size: 'M', price: 5100 },
-                '4810000009': { article: '6603', name: 'Джинсы прямые', size: '42', price: 4500 },
-                '4810000010': { article: '6603', name: 'Джинсы прямые', size: '44', price: 4500 },
+                '4810000000001': { article: '3345', name: 'Кардиган серый', size: 'M', price: 3900 },
+                '4810000000002': { article: '3345', name: 'Кардиган серый', size: 'S', price: 3900 },
+                '4810000000003': { article: '5520', name: 'Брюки чёрные', size: '42', price: 4200 },
+                '4810000000004': { article: '5520', name: 'Брюки чёрные', size: '44', price: 4200 },
+                '4810000000005': { article: '7780', name: 'Рубашка белая', size: '40', price: 2800 },
+                '4810000000006': { article: '7780', name: 'Рубашка белая', size: '42', price: 2800 },
+                '4810000000007': { article: '9901', name: 'Платье летнее', size: 'S', price: 5100 },
+                '4810000000008': { article: '9901', name: 'Платье летнее', size: 'M', price: 5100 },
+                '4810000000009': { article: '6603', name: 'Джинсы прямые', size: '42', price: 4500 },
+                '4810000000010': { article: '6603', name: 'Джинсы прямые', size: '44', price: 4500 },
             };
         }
 
         function getDefaultStock() {
             return {
-                '4810000001': { main: 3, lenina: 1 },
-                '4810000002': { main: 0, lenina: 2 },
-                '4810000003': { main: 1, lenina: 0 },
-                '4810000004': { main: 2, lenina: 3 },
-                '4810000005': { main: 5, lenina: 0 },
-                '4810000006': { main: 0, lenina: 4 },
-                '4810000007': { main: 2, lenina: 1 },
-                '4810000008': { main: 1, lenina: 0 },
-                '4810000009': { main: 3, lenina: 2 },
-                '4810000010': { main: 0, lenina: 1 },
+                '4810000000001': { main: 3, lenina: 1 },
+                '4810000000002': { main: 0, lenina: 2 },
+                '4810000000003': { main: 1, lenina: 0 },
+                '4810000000004': { main: 2, lenina: 3 },
+                '4810000000005': { main: 5, lenina: 0 },
+                '4810000000006': { main: 0, lenina: 4 },
+                '4810000000007': { main: 2, lenina: 1 },
+                '4810000000008': { main: 1, lenina: 0 },
+                '4810000000009': { main: 3, lenina: 2 },
+                '4810000000010': { main: 0, lenina: 1 },
             };
         }
 
         function loadData() {
             if (!localStorage.getItem(LS_PRODUCTS)) localStorage.setItem(LS_PRODUCTS, JSON.stringify(
-                getDefaultProducts()));
+            getDefaultProducts()));
             if (!localStorage.getItem(LS_STOCK)) localStorage.setItem(LS_STOCK, JSON.stringify(getDefaultStock()));
         }
 
@@ -907,6 +993,11 @@
             saveProducts(products);
         }
 
+        // Проверка EAN-13: ровно 13 цифр
+        function isValidEAN13(str) {
+            return /^\d{13}$/.test(str);
+        }
+
         // ==================== ТОСТЫ ====================
         function showToast(m) {
             const t = document.getElementById('toast');
@@ -923,6 +1014,7 @@
             document.getElementById('bottomBar').style.display = 'flex';
             startScanner();
             renderStockTable();
+            renderClearTable();
             renderReceipt();
             renderTransfer();
             updateBatchUI();
@@ -934,22 +1026,27 @@
             currentStore = currentStore === 'main' ? 'lenina' : 'main';
             document.getElementById('currentStoreLabel').textContent = STORES[currentStore];
             document.getElementById('stockStoreLabel').textContent = STORES[currentStore];
+            document.getElementById('clearStoreLabel').textContent = STORES[currentStore];
+            document.getElementById('dangerStoreLabel').textContent = STORES[currentStore];
             renderStockTable();
+            renderClearTable();
             showToast('МАГАЗИН: ' + STORES[currentStore]);
         }
 
         // ==================== ТАБЫ ====================
         function switchTab(tab) {
             currentTab = tab;
-            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === ['scan', 'stock',
-                'ops'
-            ].indexOf(tab)));
+            const tabNames = ['scan', 'stock', 'ops', 'clear'];
+            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === tabNames.indexOf(
+            tab)));
             document.getElementById('tab-scan').classList.toggle('hidden', tab !== 'scan');
             document.getElementById('tab-stock').classList.toggle('hidden', tab !== 'stock');
             document.getElementById('tab-ops').classList.toggle('hidden', tab !== 'ops');
+            document.getElementById('tab-clear').classList.toggle('hidden', tab !== 'clear');
             if (tab === 'scan') startScanner();
             else stopScanner();
             if (tab === 'stock') renderStockTable();
+            if (tab === 'clear') renderClearTable();
         }
 
         // ==================== СКАНЕР ====================
@@ -1015,6 +1112,7 @@
             showToast('🗑 СПИСАНО');
             showProductInfo(b);
             renderStockTable();
+            renderClearTable();
         }
 
         function quickSell(b) {
@@ -1023,6 +1121,7 @@
             showToast('💰 ПРОДАНО');
             showProductInfo(b);
             renderStockTable();
+            renderClearTable();
         }
 
         // ==================== ОСТАТКИ ====================
@@ -1033,13 +1132,12 @@
             const tbody = document.querySelector('#stockTable tbody');
             tbody.innerHTML = '';
             let cnt = 0;
-            // Показываем все штрихкоды, которые есть в stock ИЛИ в products
             const allBarcodes = new Set([...Object.keys(stock), ...Object.keys(products)]);
             allBarcodes.forEach(b => {
                 const p = products[b];
                 const ss = stock[b] || { main: 0, lenina: 0 };
                 const q = ss[currentStore] || 0;
-                if (!p && q === 0) return; // Пропускаем неизвестные с нулевым остатком
+                if (!p && q === 0) return;
                 const name = p ? p.name : '—';
                 const article = p ? p.article : '—';
                 const size = p ? p.size : '—';
@@ -1068,10 +1166,79 @@
         function quickWriteoffFromTable(b) { quickWriteoff(b);
             renderStockTable(); }
 
+        // ==================== ОЧИСТКА ОСТАТКОВ ====================
+        function renderClearTable() {
+            const products = getProducts();
+            const stock = getStock();
+            const tbody = document.querySelector('#clearTable tbody');
+            tbody.innerHTML = '';
+            const allBarcodes = Object.keys(stock);
+            allBarcodes.forEach(b => {
+                const q = (stock[b] && stock[b][currentStore]) ? stock[b][currentStore] : 0;
+                if (q <= 0) return;
+                const p = products[b];
+                const name = p ? p.name : '—';
+                const size = p ? p.size : '—';
+                tbody.innerHTML += `<tr>
+              <td class="checkbox-cell"><input type="checkbox" class="clear-checkbox" data-barcode="${b}" onchange="updateClearSelection()"></td>
+              <td style="font-size:10px;color:var(--sub);">${b}</td>
+              <td>${name}</td>
+              <td>${size}</td>
+              <td class="stock-cell stock-ok">${q}</td>
+            </tr>`;
+            });
+            updateClearSelection();
+        }
+
+        function toggleSelectAllClear() {
+            const master = document.getElementById('selectAllClear');
+            const boxes = document.querySelectorAll('.clear-checkbox');
+            boxes.forEach(b => b.checked = master.checked);
+            updateClearSelection();
+        }
+
+        function updateClearSelection() {
+            const boxes = document.querySelectorAll('.clear-checkbox');
+            const checked = document.querySelectorAll('.clear-checkbox:checked');
+            document.getElementById('selectedCount').textContent = 'ВЫБРАНО: ' + checked.length;
+            document.getElementById('deleteSelectedBtn').disabled = checked.length === 0;
+            document.getElementById('deleteSelectedBtn').textContent = checked.length > 0 ?
+                `🗑 УДАЛИТЬ ВЫБРАННЫЕ (${checked.length})` : '🗑 УДАЛИТЬ ВЫБРАННЫЕ';
+        }
+
+        function deleteSelected() {
+            const checked = document.querySelectorAll('.clear-checkbox:checked');
+            if (checked.length === 0) return;
+            if (!confirm(`Удалить ${checked.length} позиций из магазина «${STORES[currentStore]}»?`)) return;
+            checked.forEach(cb => {
+                const barcode = cb.dataset.barcode;
+                setStockQty(barcode, currentStore, 0);
+            });
+            showToast(`🗑 УДАЛЕНО: ${checked.length} ПОЗИЦИЙ`);
+            renderClearTable();
+            renderStockTable();
+        }
+
+        function clearAllStock() {
+            if (!confirm(`⚠️ Полностью очистить ВСЕ остатки в магазине «${STORES[currentStore]}»?\n\nДанные о товарах сохранятся. Это действие нельзя отменить.`))
+                return;
+            const stock = getStock();
+            Object.keys(stock).forEach(b => {
+                if (stock[b] && stock[b][currentStore]) {
+                    stock[b][currentStore] = 0;
+                }
+            });
+            saveStock(stock);
+            showToast('🗑 ВСЕ ОСТАТКИ ОЧИЩЕНЫ: ' + STORES[currentStore]);
+            renderClearTable();
+            renderStockTable();
+        }
+
         // ==================== РУЧНАЯ ПРИЁМКА ====================
         function addToReceipt() {
             const b = document.getElementById('receiptBarcode').value.trim();
             if (!b) return;
+            if (!isValidEAN13(b)) { showToast('❌ НУЖЕН 13-ЗНАЧНЫЙ ШТРИХКОД'); return; }
             const ex = receiptItems.find(i => i.barcode === b);
             ex ? ex.qty++ : receiptItems.push({ barcode: b, qty: 1 });
             document.getElementById('receiptBarcode').value = '';
@@ -1116,6 +1283,7 @@
             showToast('✅ ПРИЁМКА: ' + total + ' ЕД. → ' + STORES[s]);
             clearReceipt();
             renderStockTable();
+            renderClearTable();
         }
 
         function clearReceipt() { receiptItems = [];
@@ -1125,6 +1293,7 @@
         function addToTransfer() {
             const b = document.getElementById('transferBarcode').value.trim();
             if (!b) return;
+            if (!isValidEAN13(b)) { showToast('❌ НУЖЕН 13-ЗНАЧНЫЙ ШТРИХКОД'); return; }
             const ex = transferItems.find(i => i.barcode === b);
             ex ? ex.qty++ : transferItems.push({ barcode: b, qty: 1 });
             document.getElementById('transferBarcode').value = '';
@@ -1169,6 +1338,7 @@
             showToast('🚚 ПЕРЕМЕЩЕНО → ' + STORES[to]);
             clearTransfer();
             renderStockTable();
+            renderClearTable();
         }
 
         function clearTransfer() { transferItems = [];
@@ -1181,10 +1351,21 @@
         }
 
         function parseBarcodesFromText(t) {
-            const parts = t.split(/[\s,;\t\n\r]+/).filter(s => s.length > 0);
-            const c = {};
-            parts.forEach(p => { const tp = p.trim(); if (tp) c[tp] = (c[tp] || 0) + 1; });
-            return c;
+            // Разделяем по всем возможным разделителям
+            const parts = t.split(/[\s,;\t\n\r|]+/).filter(s => s.length > 0);
+            const counts = {};
+            const skipped = [];
+            parts.forEach(p => {
+                const trimmed = p.trim();
+                if (isValidEAN13(trimmed)) {
+                    counts[trimmed] = (counts[trimmed] || 0) + 1;
+                } else if (trimmed.length > 0 && /\d/.test(trimmed)) {
+                    // Содержит цифры, но не EAN-13 — пропускаем
+                    skipped.push(trimmed);
+                }
+                // Всё остальное (даты, время, текст) просто игнорируется
+            });
+            return { counts, skipped };
         }
 
         function handleFileUpload(e) {
@@ -1199,9 +1380,24 @@
         function parseBatchText() {
             const text = document.getElementById('batchText').value.trim();
             if (!text) { showToast('❌ ПУСТО'); return; }
-            const counts = parseBarcodesFromText(text);
+            const { counts, skipped } = parseBarcodesFromText(text);
             const barcodes = Object.keys(counts);
-            if (!barcodes.length) { showToast('❌ НЕТ ШТРИХКОДОВ'); return; }
+            if (!barcodes.length && !skipped.length) { showToast('❌ НЕТ ШТРИХКОДОВ'); return; }
+            if (!barcodes.length) {
+                showToast('❌ ВСЕ ЗНАЧЕНИЯ ОТФИЛЬТРОВАНЫ. Нужны 13-значные штрихкоды.');
+                // Показываем что пропущено
+                document.getElementById('batchResultCard').classList.remove('hidden');
+                document.getElementById('batchSummary').innerHTML =
+                    '<div class="summary-row"><span>Найдено штрихкодов:</span><b>0</b></div>';
+                document.getElementById('batchTableWrap').style.display = 'none';
+                document.getElementById('newProductsSection').classList.add('hidden');
+                document.getElementById('confirmBatchBtn').disabled = true;
+                const skippedSection = document.getElementById('skippedSection');
+                skippedSection.classList.remove('hidden');
+                document.getElementById('skippedList').textContent = skipped.slice(0, 30).join(', ') + (skipped
+                    .length > 30 ? ' …' : '');
+                return;
+            }
             const type = document.getElementById('batchOpType').value;
             const store = document.getElementById('batchStore').value;
             const transferTo = type === 'transfer_out' ? document.getElementById('batchTransferTo').value : null;
@@ -1222,19 +1418,24 @@
                 batchParsedItems.push({ barcode: b, qty: q, product: pr, available: av, status: st });
             });
             batchOperation = { type, store, transferTo };
-            renderBatchResult();
-            showToast(`🔍 ${barcodes.length} ШТРИХКОДОВ, ${tQty} ЕД.`);
+            // Сохраняем пропущенные для отображения
+            window._lastSkipped = skipped;
+            renderBatchResult(skipped);
+            showToast(`🔍 ${barcodes.length} ШТРИХКОДОВ, ${tQty} ЕД.` + (skipped.length ? ` | ПРОПУЩЕНО: ${skipped.length}` :
+                ''));
         }
 
-        function renderBatchResult() {
+        function renderBatchResult(skipped) {
             const card = document.getElementById('batchResultCard'),
                 sum = document.getElementById('batchSummary'),
                 wrap = document.getElementById('batchTableWrap'),
                 tbody = document.getElementById('batchTableBody'),
                 btn = document.getElementById('confirmBatchBtn'),
                 newSection = document.getElementById('newProductsSection'),
-                newList = document.getElementById('newProductsList');
-            if (!batchParsedItems.length) { card.classList.add('hidden'); return; }
+                newList = document.getElementById('newProductsList'),
+                skippedSection = document.getElementById('skippedSection'),
+                skippedList = document.getElementById('skippedList');
+            if (!batchParsedItems.length && !skipped.length) { card.classList.add('hidden'); return; }
             card.classList.remove('hidden');
             const uq = batchParsedItems.length,
                 tQ = batchParsedItems.reduce((s, i) => s + i.qty, 0),
@@ -1244,37 +1445,48 @@
             <div class="summary-row"><span>Уникальных штрихкодов:</span><b>${uq}</b></div>
             <div class="summary-row"><span>Всего единиц:</span><b>${tQ}</b></div>
             <div class="summary-row"><span>Найдено в базе:</span><span class="tag tag-ok">${uq - unk}</span></div>
-            ${unk ? `<div class="summary-row"><span>Новых (будут добавлены):</span><span class="tag tag-new">${unk}</span></div>` : ''}
-            ${low ? `<div class="summary-row"><span>Не хватает остатков:</span><span class="tag tag-warn">${low}</span></div>` : ''}
+            ${unk ? `<div class="summary-row"><span>Новых:</span><span class="tag tag-new">${unk}</span></div>` : ''}
+            ${low ? `<div class="summary-row"><span>Нехватка:</span><span class="tag tag-warn">${low}</span></div>` : ''}
+            ${skipped.length ? `<div class="summary-row"><span>Пропущено:</span><span class="tag tag-skipped">${skipped.length}</span></div>` : ''}
             <div class="summary-row total"><span>ОПЕРАЦИЯ:</span><span>${batchOperation.type === 'receipt' ? '📥 ПРИЁМКА → ' + STORES[batchOperation.store] : '🚚 ' + STORES[batchOperation.store] + ' → ' + STORES[batchOperation.transferTo]}</span></div>`;
 
-            // Таблица
-            const items = batchParsedItems.slice(0, 30);
-            wrap.style.display = 'block';
-            tbody.innerHTML = items.map(i => {
-                const p = i.product;
-                let tag = '<span class="tag tag-ok">✓</span>';
-                if (i.status === 'unknown') tag = '<span class="tag tag-new">НОВЫЙ</span>';
-                if (i.status === 'low') tag = '<span class="tag tag-warn">МАЛО</span>';
-                return `<tr><td>${i.barcode}</td><td>${p?p.name:'—'}</td><td>${p?p.size:'—'}</td><td><b>${i.qty}</b></td><td>${i.available}</td><td>${tag}</td></tr>`;
-            }).join('');
-            if (batchParsedItems.length > 30) tbody.innerHTML +=
-                `<tr><td colspan="6" style="text-align:center;color:#555;">… И ЕЩЁ ${batchParsedItems.length-30}</td></tr>`;
+            if (batchParsedItems.length > 0) {
+                wrap.style.display = 'block';
+                const items = batchParsedItems.slice(0, 30);
+                tbody.innerHTML = items.map(i => {
+                    const p = i.product;
+                    let tag = '<span class="tag tag-ok">✓</span>';
+                    if (i.status === 'unknown') tag = '<span class="tag tag-new">НОВЫЙ</span>';
+                    if (i.status === 'low') tag = '<span class="tag tag-warn">МАЛО</span>';
+                    return `<tr><td>${i.barcode}</td><td>${p?p.name:'—'}</td><td>${p?p.size:'—'}</td><td><b>${i.qty}</b></td><td>${i.available}</td><td>${tag}</td></tr>`;
+                }).join('');
+                if (batchParsedItems.length > 30) tbody.innerHTML +=
+                    `<tr><td colspan="6" style="text-align:center;color:#555;">… И ЕЩЁ ${batchParsedItems.length-30}</td></tr>`;
+            } else {
+                wrap.style.display = 'none';
+            }
 
-            // Секция новых товаров
+            // Пропущенные
+            if (skipped.length > 0) {
+                skippedSection.classList.remove('hidden');
+                skippedList.textContent = skipped.slice(0, 40).join(', ') + (skipped.length > 40 ? ' …' : '');
+            } else {
+                skippedSection.classList.add('hidden');
+            }
+
+            // Новые товары
             const unknownItems = batchParsedItems.filter(i => i.status === 'unknown');
             if (unknownItems.length > 0 && batchOperation.type === 'receipt') {
                 newSection.classList.remove('hidden');
-                // Убираем дубликаты по штрихкоду
                 const uniqueUnknown = [];
                 const seen = new Set();
                 unknownItems.forEach(i => { if (!seen.has(i.barcode)) { seen.add(i.barcode);
                         uniqueUnknown.push(i); } });
                 newList.innerHTML = uniqueUnknown.map((i, idx) => `
-                <div class="inline-edit" style="margin-bottom:6px;">
+                <div class="inline-edit">
                   <span style="font-size:10px;color:var(--sub);min-width:70px;">${i.barcode}</span>
                   <input type="text" placeholder="Артикул" class="new-art" data-barcode="${i.barcode}" value="NEW${idx+1}" style="max-width:80px;">
-                  <input type="text" placeholder="Название" class="new-name" data-barcode="${i.barcode}" value="Новый товар ${idx+1}" style="max-width:120px;">
+                  <input type="text" placeholder="Название" class="new-name" data-barcode="${i.barcode}" value="Новый товар ${idx+1}" style="max-width:110px;">
                   <input type="text" placeholder="Размер" class="new-size" data-barcode="${i.barcode}" value="—" style="max-width:60px;">
                   <input type="number" placeholder="Цена" class="new-price" data-barcode="${i.barcode}" value="0" style="max-width:70px;">
                 </div>
@@ -1283,20 +1495,17 @@
                 newSection.classList.add('hidden');
             }
 
-            // Кнопка подтверждения всегда активна для приёмки
             btn.disabled = false;
             btn.textContent = batchOperation.type === 'receipt' ? '✅ ПОДТВЕРДИТЬ ПРИЁМКУ' : '🚚 ПОДТВЕРДИТЬ ПЕРЕМЕЩЕНИЕ';
             btn.className = 'btn btn-accent';
-
-            // Для перемещения — блокируем если есть неизвестные или нехватка
             if (batchOperation.type === 'transfer_out') {
-                if (unk > 0) {
-                    btn.disabled = true;
-                    btn.textContent = '❌ ЕСТЬ НЕИЗВЕСТНЫЕ ШТРИХКОДЫ';
-                } else if (low > 0) {
-                    btn.disabled = true;
-                    btn.textContent = '❌ НЕ ХВАТАЕТ ОСТАТКОВ';
-                }
+                if (unk > 0) { btn.disabled = true;
+                    btn.textContent = '❌ ЕСТЬ НЕИЗВЕСТНЫЕ ШТРИХКОДЫ'; } else if (low > 0) { btn.disabled = true;
+                    btn.textContent = '❌ НЕ ХВАТАЕТ ОСТАТКОВ'; }
+            }
+            if (batchParsedItems.length === 0) {
+                btn.disabled = true;
+                btn.textContent = '❌ НЕТ ВАЛИДНЫХ ШТРИХКОДОВ';
             }
         }
 
@@ -1313,28 +1522,21 @@
         function confirmBatchOperation() {
             if (!batchOperation || !batchParsedItems.length) return;
             const { type, store, transferTo } = batchOperation;
-
-            // Собираем данные о новых товарах из полей ввода
             if (type === 'receipt') {
                 const newArts = document.querySelectorAll('.new-art');
-                const newNames = document.querySelectorAll('.new-name');
-                const newSizes = document.querySelectorAll('.new-size');
-                const newPrices = document.querySelectorAll('.new-price');
                 const newData = {};
                 newArts.forEach(inp => {
                     const barcode = inp.dataset.barcode;
                     newData[barcode] = {
                         article: inp.value.trim() || 'NEW',
-                        name: document.querySelector(`.new-name[data-barcode="${barcode}"]`)?.value
-                            .trim() || 'Новый товар',
+                        name: document.querySelector(`.new-name[data-barcode="${barcode}"]`)?.value.trim() ||
+                            'Новый товар',
                         size: document.querySelector(`.new-size[data-barcode="${barcode}"]`)?.value.trim() ||
                             '—',
-                        price: parseInt(document.querySelector(`.new-price[data-barcode="${barcode}"]`)
-                            ?.value) || 0
+                        price: parseInt(document.querySelector(`.new-price[data-barcode="${barcode}"]`)?.value) ||
+                            0
                     };
                 });
-
-                // Добавляем новые товары в базу
                 batchParsedItems.forEach(i => {
                     if (i.status === 'unknown' && newData[i.barcode]) {
                         const nd = newData[i.barcode];
@@ -1345,33 +1547,30 @@
                 const total = batchParsedItems.reduce((s, i) => s + i.qty, 0);
                 showToast(`✅ ПРИЁМКА: ${total} ЕД. → ${STORES[store]}`);
             } else if (type === 'transfer_out') {
-                // Проверка
                 let err = false;
                 batchParsedItems.forEach(i => {
-                    if (i.status === 'low' || i.status === 'unknown') {
-                        showToast('❌ НЕВОЗМОЖНО: ' + i.barcode);
-                        err = true;
-                    }
+                    if (i.status === 'low' || i.status === 'unknown') { showToast('❌ НЕВОЗМОЖНО: ' + i.barcode);
+                        err = true; }
                 });
                 if (err) return;
-                batchParsedItems.forEach(i => {
-                    addStockQty(i.barcode, store, -i.qty);
-                    addStockQty(i.barcode, transferTo, i.qty);
-                });
+                batchParsedItems.forEach(i => { addStockQty(i.barcode, store, -i.qty);
+                    addStockQty(i.barcode, transferTo, i.qty); });
                 showToast('🚚 ПЕРЕМЕЩЕНО → ' + STORES[transferTo]);
             }
-
             clearBatch();
             renderStockTable();
+            renderClearTable();
         }
 
         function clearBatch() {
             batchParsedItems = [];
             batchOperation = null;
+            window._lastSkipped = [];
             document.getElementById('batchResultCard').classList.add('hidden');
             document.getElementById('batchText').value = '';
             document.getElementById('fileInput').value = '';
             document.getElementById('newProductsSection').classList.add('hidden');
+            document.getElementById('skippedSection').classList.add('hidden');
         }
 
         function setupDragDrop() {
@@ -1414,6 +1613,7 @@
             showToast('💰 ПРОДАНО');
             closeSellModal();
             renderStockTable();
+            renderClearTable();
         }
 
         function openWriteoffModal() { document.getElementById('writeoffModal').classList.remove('hidden');
@@ -1439,11 +1639,19 @@
             showToast('🗑 БРАК СПИСАН');
             closeWriteoffModal();
             renderStockTable();
+            renderClearTable();
         }
 
         // ==================== ИНИТ ====================
         function init() {
             loadData();
+            // Обновляем демо-данные на 13-значные если старые 10-значные
+            const stock = getStock();
+            const products = getProducts();
+            const oldKeys = Object.keys(products).filter(k => k.length === 10);
+            if (oldKeys.length > 0 && !localStorage.getItem('stockflow_migrated')) {
+                // Миграция не требуется — просто используем что есть
+            }
             setTimeout(hideSplash, 2000);
             document.getElementById('sellModal').addEventListener('click', function(e) { if (e.target === this)
                     closeSellModal(); });
