@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>StockFlow — Остатки магазина</title>
+    <title>SPORTFASION — StockFlow</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
     </script>
     <style>
         :root {
-            --bg: #f5f5f5;
-            --card: #fff;
-            --text: #1a1a1a;
-            --sub: #666;
-            --accent: #1a73e8;
-            --danger: #d93025;
-            --success: #0d904f;
-            --warning: #e67e00;
-            --border: #e0e0e0;
-            --radius: 12px;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --card: #1a1a1a;
+            --card-hover: #1f1f1f;
+            --border: #2a2a2a;
+            --text: #f0f0f0;
+            --sub: #888;
+            --accent: #d4ff00;
+            --accent2: #00e5ff;
+            --danger: #ff3b5c;
+            --success: #00e676;
+            --warning: #ffab00;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         * {
             margin: 0;
@@ -26,164 +31,283 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: var(--font-sans);
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding-bottom: 100px;
+            min-height: 100dvh;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .splash-logo {
+            font-family: var(--font-mono);
+            font-size: clamp(28px, 6vw, 42px);
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .splash-logo .dot {
+            color: var(--accent);
+            animation: dotPulse 1.2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+        }
+        .splash-sub {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.4em;
+            color: #555;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .loader-bar-wrap {
+            width: 200px;
+            height: 2px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            margin-top: 32px;
+            overflow: hidden;
+        }
+        .loader-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            border-radius: 2px;
+            animation: loadBar 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes loadBar {
+            0% {
+                width: 0%;
+            }
+            40% {
+                width: 60%;
+            }
+            70% {
+                width: 85%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+        .loader-text {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: #444;
+            margin-top: 10px;
+            letter-spacing: 0.3em;
+            animation: loaderFade 1.8s ease forwards;
+        }
+        @keyframes loaderFade {
+            0%,
+            85% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        .app {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 12px 100px;
+            animation: fadeInUp 0.5s ease 0.3s both;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .header {
-            background: #1a1a1a;
-            color: #fff;
-            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            background: var(--bg);
+            gap: 12px;
         }
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
+        .header-brand {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #fff;
+            text-transform: uppercase;
         }
-        .store-badge {
-            background: #333;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
+        .header-brand span {
+            color: var(--accent);
+        }
+        .store-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.25s;
+            font-weight: 500;
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
+        }
+        .store-pill:active {
+            background: #222;
+        }
+        .store-pill .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--surface);
+            border-radius: 30px;
+            padding: 4px;
+            border: 1px solid var(--border);
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 8px;
+            border-radius: 26px;
+            font-size: 12px;
             cursor: pointer;
             border: none;
+            background: transparent;
+            color: var(--sub);
+            font-weight: 500;
+            transition: all 0.3s;
+            letter-spacing: 0.03em;
+            font-family: var(--font-mono);
+        }
+        .tab.active {
+            background: #222;
             color: #fff;
-        }
-        .store-badge.active {
-            background: var(--accent);
-        }
-        .container {
-            padding: 12px;
-            max-width: 500px;
-            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            font-weight: 600;
         }
         .card {
             background: var(--card);
+            border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
+            padding: 18px;
+            margin-bottom: 14px;
+            transition: 0.2s;
         }
-        .card h2 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 10px;
+        .card-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            margin-bottom: 14px;
         }
-        .card h3 {
+        .card-header .icon {
+            font-size: 20px;
+        }
+        .card-header h2 {
             font-size: 14px;
             font-weight: 600;
-            margin: 12px 0 8px;
-            color: #333;
+            letter-spacing: 0.03em;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
         }
         #reader {
             width: 100%;
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
         }
         #reader video {
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
         }
         .scan-result {
             text-align: center;
             padding: 8px;
-            font-size: 14px;
+            font-size: 12px;
             color: var(--sub);
-            min-height: 24px;
+            min-height: 22px;
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
         }
         .scan-result.found {
             color: var(--success);
-            font-weight: 600;
         }
         .scan-result.not-found {
             color: var(--danger);
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: opacity 0.2s;
-            white-space: nowrap;
-        }
-        .btn:active {
-            opacity: 0.7;
-        }
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            width: 100%;
-            padding: 12px;
-        }
-        .btn-outline {
-            background: #fff;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        .btn-danger {
-            background: #fff;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-        }
-        .btn-success {
-            background: var(--success);
-            color: #fff;
-        }
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 13px;
-        }
-        .btn-xs {
-            padding: 4px 8px;
-            font-size: 11px;
-        }
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .btn-block {
-            width: 100%;
-            justify-content: center;
         }
         input,
         select,
         textarea {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px 14px;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            background: #fff;
-            font-family: inherit;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            background: var(--surface);
+            color: #fff;
+            font-family: var(--font-mono);
+            letter-spacing: 0.03em;
+            transition: 0.2s;
         }
-        textarea {
-            resize: vertical;
-            min-height: 100px;
+        input::placeholder,
+        textarea::placeholder {
+            color: #555;
         }
         input:focus,
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: #444;
+            background: #1a1a1a;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
         }
         .input-row {
             display: flex;
@@ -195,43 +319,117 @@
             flex: 1;
             min-width: 0;
         }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 11px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.25s;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            width: 100%;
+            padding: 13px;
+            font-size: 13px;
+        }
+        .btn-primary:active {
+            background: #e0e0e0;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #333;
+            color: #ccc;
+        }
+        .btn-outline:active {
+            background: #1a1a1a;
+            border-color: #555;
+        }
+        .btn-accent {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: 700;
+        }
+        .btn-accent:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .btn-danger {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 11px;
+        }
+        .btn-xs {
+            padding: 5px 10px;
+            font-size: 10px;
+            border-radius: 20px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
         .table-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             margin: 8px -4px;
             padding: 0 4px;
-            max-height: 300px;
+            max-height: 340px;
             overflow-y: auto;
+            border-radius: var(--radius-sm);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
-            min-width: 500px;
+            font-size: 11px;
+            min-width: 480px;
+            font-family: var(--font-mono);
         }
         th,
         td {
-            padding: 8px 6px;
+            padding: 10px 8px;
             text-align: left;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #1a1a1a;
             white-space: nowrap;
         }
         th {
             font-weight: 600;
-            color: var(--sub);
-            font-size: 11px;
+            color: #666;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
             position: sticky;
             top: 0;
             background: var(--card);
+            z-index: 1;
         }
         .stock-cell {
-            font-weight: 600;
+            font-weight: 700;
             text-align: center;
+            font-size: 13px;
         }
         .stock-zero {
-            color: #ccc;
+            color: #333;
         }
         .stock-low {
             color: var(--warning);
@@ -240,96 +438,85 @@
             color: var(--success);
         }
         .product-found {
-            background: #f0f7f0;
-            border-radius: var(--radius);
-            padding: 12px;
-            margin-top: 8px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-top: 10px;
         }
         .product-found .name {
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.03em;
         }
         .product-found .meta {
             color: var(--sub);
-            font-size: 13px;
+            font-size: 12px;
             margin: 4px 0;
+            font-family: var(--font-mono);
         }
         .product-found .stock-info {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-top: 6px;
-            font-size: 13px;
+            margin-top: 8px;
+            font-size: 11px;
         }
         .stock-chip {
-            background: #e8e8e8;
-            padding: 4px 10px;
-            border-radius: 14px;
-            font-size: 12px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-family: var(--font-mono);
         }
         .stock-chip.current {
-            background: #d4e4fc;
-            font-weight: 600;
-        }
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 12px;
-            background: #e8e8e8;
-            border-radius: 10px;
-            padding: 3px;
-        }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px 6px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-        .tab.active {
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
             font-weight: 600;
         }
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 200;
             display: flex;
             align-items: flex-end;
             justify-content: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
         .modal {
-            background: #fff;
-            border-radius: 16px 16px 0 0;
-            padding: 20px 16px 30px;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 24px 24px 0 0;
+            padding: 22px 18px 34px;
             width: 100%;
             max-width: 500px;
             max-height: 85vh;
             overflow-y: auto;
         }
         .modal h3 {
-            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-family: var(--font-mono);
         }
         .modal .btn-group {
-            margin-top: 12px;
+            margin-top: 14px;
         }
         .bottom-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: #fff;
-            border-top: 1px solid var(--border);
+            background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
             display: flex;
-            padding: 6px 12px;
-            padding-bottom: max(6px, env(safe-area-inset-bottom));
+            padding: 8px 12px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
             z-index: 150;
             gap: 8px;
             max-width: 500px;
@@ -337,52 +524,13 @@
         }
         .bottom-bar .btn {
             flex: 1;
-            font-size: 13px;
-            padding: 10px;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 12px 0;
-        }
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1a1a;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 13px;
-            z-index: 300;
-            animation: toastIn 0.3s ease;
-        }
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-        .badge {
-            display: inline-block;
-            background: var(--accent);
-            color: #fff;
-            border-radius: 10px;
-            padding: 2px 8px;
             font-size: 11px;
-            margin-left: 4px;
+            padding: 11px;
+            border-radius: 30px;
         }
         .file-area {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
+            border: 2px dashed #2a2a2a;
+            border-radius: var(--radius-sm);
             padding: 20px;
             text-align: center;
             cursor: pointer;
@@ -392,227 +540,286 @@
         .file-area:hover,
         .file-area.drag-over {
             border-color: var(--accent);
-            background: #f0f5ff;
+            background: #111;
         }
         .file-area .icon {
-            font-size: 32px;
-            margin-bottom: 8px;
+            font-size: 28px;
+            margin-bottom: 6px;
         }
         .file-area .text {
-            font-size: 13px;
-            color: var(--sub);
+            font-size: 11px;
+            color: #555;
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
+        }
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            font-family: var(--font-mono);
+        }
+        .tag-ok {
+            background: #0a2a0a;
+            color: #00e676;
+            border: 1px solid #0d3d0d;
+        }
+        .tag-warn {
+            background: #2a1a00;
+            color: #ffab00;
+            border: 1px solid #3d2a00;
+        }
+        .tag-err {
+            background: #2a0a0a;
+            color: #ff3b5c;
+            border: 1px solid #3d0d0d;
+        }
+        .tag-unknown {
+            background: #1a1a1a;
+            color: #888;
+            border: 1px solid #2a2a2a;
+        }
+        .tag-new {
+            background: #0a1a2a;
+            color: #00b8ff;
+            border: 1px solid #0d2a3d;
         }
         .summary-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            font-size: 13px;
+            padding: 7px 0;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            letter-spacing: 0.03em;
         }
         .summary-row.total {
             font-weight: 700;
-            border-top: 2px solid #333;
-            margin-top: 4px;
-            padding-top: 10px;
-            font-size: 15px;
+            border-top: 1px solid #2a2a2a;
+            margin-top: 6px;
+            padding-top: 12px;
+            font-size: 13px;
+            color: #fff;
         }
-        .tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 6px;
+        .divider {
+            border: none;
+            border-top: 1px solid #1a1a1a;
+            margin: 14px 0;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 12px;
+            z-index: 300;
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
+            animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        .inline-edit {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .inline-edit input {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px 10px;
             font-size: 11px;
-            font-weight: 600;
-            margin: 2px;
         }
-        .tag-ok {
-            background: #d4edda;
-            color: #155724;
+        .help-text {
+            font-size: 10px;
+            color: #555;
+            margin-top: 6px;
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
         }
-        .tag-warn {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .tag-err {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .tag-unknown {
-            background: #e8e8e8;
-            color: #666;
+        .highlight-box {
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-top: 8px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📦 StockFlow</h1>
-        <button class="store-badge active" id="storeBtn" onclick="toggleStore()">
-            🏪 <span id="currentStoreLabel">Основной</span>
-        </button>
+
+    <!-- ЗАСТАВКА -->
+    <div class="splash-screen" id="splash">
+        <div class="splash-logo">SPORT<span class="dot">.</span>FASION</div>
+        <div class="splash-sub">Inventory System</div>
+        <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+        <div class="loader-text">LOADING</div>
     </div>
 
-    <div class="container" id="mainContent">
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('scan')">📷 Сканер</button>
-            <button class="tab" onclick="switchTab('stock')">📋 Остатки</button>
-            <button class="tab" onclick="switchTab('ops')">⚙️ Операции</button>
+    <!-- ПРИЛОЖЕНИЕ -->
+    <div class="app" id="app" style="display:none;">
+        <div class="header">
+            <div class="header-brand">STOCK<span>FLOW</span></div>
+            <div class="store-pill" id="storeBtn" onclick="toggleStore()">
+                <div class="indicator"></div>
+                <span id="currentStoreLabel">ОСНОВНОЙ</span>
+            </div>
         </div>
 
-        <!-- Сканер -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('scan')">📷 СКАНЕР</button>
+            <button class="tab" onclick="switchTab('stock')">📋 ОСТАТКИ</button>
+            <button class="tab" onclick="switchTab('ops')">⚙️ ОПЕРАЦИИ</button>
+        </div>
+
+        <!-- СКАНЕР -->
         <div id="tab-scan">
             <div class="card">
-                <h2>📷 Сканер штрихкода</h2>
+                <div class="card-header"><span class="icon">📷</span><h2>Сканер штрихкода</h2></div>
                 <div id="reader"></div>
                 <div class="scan-result" id="scanResult">Наведите камеру на штрихкод</div>
                 <div class="input-row">
-                    <input type="text" id="manualBarcode" placeholder="Или введите штрихкод вручную">
-                    <button class="btn btn-outline btn-sm" onclick="manualScan()">Найти</button>
+                    <input type="text" id="manualBarcode" placeholder="Штрихкод вручную">
+                    <button class="btn btn-outline btn-sm" onclick="manualScan()">НАЙТИ</button>
                 </div>
                 <div id="foundProduct" class="hidden"></div>
             </div>
         </div>
 
-        <!-- Остатки -->
+        <!-- ОСТАТКИ -->
         <div id="tab-stock" class="hidden">
             <div class="card">
-                <h2>📋 Остатки — <span id="stockStoreLabel">Основной</span></h2>
-                <div class="input-row">
-                    <input type="text" id="stockSearch" placeholder="🔍 Поиск по названию или артикулу" oninput="renderStockTable()">
-                </div>
+                <div class="card-header"><span class="icon">📋</span><h2>Остатки — <span id="stockStoreLabel">ОСНОВНОЙ</span></h2></div>
+                <input type="text" id="stockSearch" placeholder="🔍 Поиск по названию или артикулу" oninput="renderStockTable()" style="margin-bottom:12px;">
                 <div class="table-wrap">
                     <table id="stockTable">
-                        <thead><tr><th>Артикул</th><th>Название</th><th>Размер</th><th>Цена</th><th>Остаток</th><th></th></tr></thead>
+                        <thead><tr><th>Штрихкод</th><th>Артикул</th><th>Название</th><th>Размер</th><th>Цена</th><th>Остаток</th><th></th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                <p style="text-align:center;color:var(--sub);font-size:12px;margin-top:8px;" id="stockCount"></p>
+                <p style="text-align:center;color:var(--sub);font-size:11px;margin-top:10px;font-family:var(--font-mono);" id="stockCount"></p>
             </div>
         </div>
 
-        <!-- Операции -->
+        <!-- ОПЕРАЦИИ -->
         <div id="tab-ops" class="hidden">
             <!-- Пакетная загрузка -->
             <div class="card">
-                <h2>📥 Пакетная загрузка штрихкодов</h2>
-                <p style="font-size:13px;color:var(--sub);margin-bottom:10px;">
-                    Загрузите файл или вставьте текст со списком штрихкодов. Поддерживаются форматы: TXT, CSV, а также копипаст из Excel/таблиц.
+                <div class="card-header"><span class="icon">📥</span><h2>Пакетная загрузка</h2></div>
+                <p style="font-size:11px;color:var(--sub);margin-bottom:12px;font-family:var(--font-mono);">
+                    Файл TXT, CSV или вставка списка штрихкодов.<br>Неизвестные штрихкоды будут добавлены как новые товары.
                 </p>
-
-                <!-- Выбор типа операции -->
-                <div class="input-row">
-                    <select id="batchOpType" onchange="updateBatchUI()">
-                        <option value="receipt">📥 Приёмка (добавить на остатки)</option>
-                        <option value="transfer_out">🚚 Перемещение: списать отсюда</option>
-                    </select>
-                </div>
+                <select id="batchOpType" onchange="updateBatchUI()" style="margin-bottom:8px;">
+                    <option value="receipt">📥 ПРИЁМКА (добавить на остатки)</option>
+                    <option value="transfer_out">🚚 ПЕРЕМЕЩЕНИЕ (списать отсюда)</option>
+                </select>
                 <div class="input-row" id="batchStoreRow">
-                    <select id="batchStore">
-                        <option value="main">🏪 Основной</option>
-                        <option value="lenina">🏪 Ленина</option>
-                    </select>
+                    <select id="batchStore"><option value="main">🏪 ОСНОВНОЙ</option><option value="lenina">🏪 ЛЕНИНА</option></select>
                 </div>
                 <div class="input-row hidden" id="batchTransferToRow">
-                    <select id="batchTransferTo">
-                        <option value="lenina">Куда: Ленина</option>
-                        <option value="main">Куда: Основной</option>
-                    </select>
+                    <select id="batchTransferTo"><option value="lenina">КУДА: ЛЕНИНА</option><option value="main">КУДА: ОСНОВНОЙ</option></select>
                 </div>
-
-                <!-- Зона загрузки файла -->
                 <div class="file-area" id="fileDropArea" onclick="document.getElementById('fileInput').click()">
                     <div class="icon">📁</div>
-                    <div class="text">Нажмите или перетащите файл со штрихкодами<br><small>TXT, CSV — штрихкоды через запятую, пробел или с новой строки</small></div>
+                    <div class="text">НАЖМИТЕ ИЛИ ПЕРЕТАЩИТЕ ФАЙЛ</div>
                 </div>
                 <input type="file" id="fileInput" accept=".txt,.csv,.tsv" style="display:none;" onchange="handleFileUpload(event)">
-
-                <div style="text-align:center;color:var(--sub);font-size:13px;margin:8px 0;">— или —</div>
-
-                <!-- Текстовое поле -->
-                <textarea id="batchText" placeholder="Вставьте список штрихкодов сюда...&#10;&#10;Например:&#10;4810000001&#10;4810000002&#10;4810000001&#10;4810000003"></textarea>
-                <button class="btn btn-primary" style="margin-top:8px;" onclick="parseBatchText()">🔍 Обработать список</button>
+                <div style="text-align:center;color:#444;font-size:11px;margin:10px 0;font-family:var(--font-mono);">— ИЛИ —</div>
+                <textarea id="batchText" placeholder="Вставьте список штрихкодов...&#10;Например:&#10;4810000001&#10;4810000002&#10;4810000099&#10;4810000001"></textarea>
+                <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="parseBatchText()">🔍 ОБРАБОТАТЬ СПИСОК</button>
             </div>
 
-            <!-- Результаты парсинга -->
+            <!-- Результат пакетной обработки -->
             <div class="card hidden" id="batchResultCard">
-                <h2>📊 Результат обработки</h2>
+                <div class="card-header"><span class="icon">📊</span><h2>Результат обработки</h2></div>
                 <div id="batchSummary"></div>
                 <div class="table-wrap" id="batchTableWrap" style="display:none;">
-                    <table>
-                        <thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во в списке</th><th>В наличии</th><th>Статус</th></tr></thead>
-                        <tbody id="batchTableBody"></tbody>
-                    </table>
+                    <table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th><th>В нал.</th><th>Статус</th></tr></thead>
+                        <tbody id="batchTableBody"></tbody></table>
+                </div>
+                <!-- Блок для новых товаров -->
+                <div id="newProductsSection" class="hidden highlight-box">
+                    <p style="font-size:11px;color:var(--accent2);font-family:var(--font-mono);margin-bottom:8px;">🆕 НОВЫЕ ШТРИХКОДЫ (будут добавлены в базу)</p>
+                    <div id="newProductsList"></div>
+                    <p class="help-text">Заполните данные для новых товаров или оставьте поля пустыми — будет присвоен артикул «NEW» и название «Новый товар».</p>
+                    <button class="btn btn-sm btn-outline" style="margin-top:6px;" onclick="autoFillNewProducts()">⚡ АВТОЗАПОЛНИТЬ</button>
                 </div>
                 <div class="btn-group" style="margin-top:12px;">
-                    <button class="btn btn-success" id="confirmBatchBtn" onclick="confirmBatchOperation()">✅ Подтвердить операцию</button>
-                    <button class="btn btn-outline" onclick="clearBatch()">🗑 Очистить</button>
+                    <button class="btn btn-accent" id="confirmBatchBtn" onclick="confirmBatchOperation()">✅ ПОДТВЕРДИТЬ ОПЕРАЦИЮ</button>
+                    <button class="btn btn-outline btn-sm" onclick="clearBatch()">🗑 ОЧИСТИТЬ</button>
                 </div>
             </div>
 
             <!-- Ручная приёмка -->
             <div class="card">
-                <h2>📥 Ручная приёмка (поштучно)</h2>
-                <div class="input-row">
-                    <input type="text" id="receiptBarcode" placeholder="Штрихкод">
-                    <button class="btn btn-outline btn-sm" onclick="addToReceipt()">➕</button>
-                </div>
-                <select id="receiptStore" style="margin-bottom:8px;">
-                    <option value="main">Принять в: Основной</option>
-                    <option value="lenina">Принять в: Ленина</option>
-                </select>
-                <div class="table-wrap" id="receiptTableWrap" style="display:none;">
-                    <table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead>
-                        <tbody id="receiptBody"></tbody></table>
-                </div>
-                <p id="receiptCount" style="font-size:12px;color:var(--sub);"></p>
-                <button class="btn btn-primary" id="finishReceiptBtn" style="display:none;" onclick="finishReceipt()">✅ Завершить приёмку</button>
-                <button class="btn btn-outline btn-sm" id="clearReceiptBtn" style="display:none;" onclick="clearReceipt()">🗑 Очистить</button>
+                <div class="card-header"><span class="icon">📥</span><h2>Ручная приёмка</h2></div>
+                <div class="input-row"><input type="text" id="receiptBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="addToReceipt()">➕</button></div>
+                <select id="receiptStore" style="margin-bottom:8px;"><option value="main">🏪 ОСНОВНОЙ</option><option value="lenina">🏪 ЛЕНИНА</option></select>
+                <div class="table-wrap" id="receiptTableWrap" style="display:none;"><table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead><tbody id="receiptBody"></tbody></table></div>
+                <p id="receiptCount" style="font-size:11px;color:var(--sub);font-family:var(--font-mono);"></p>
+                <button class="btn btn-accent" id="finishReceiptBtn" style="display:none;width:100%;" onclick="finishReceipt()">✅ ЗАВЕРШИТЬ ПРИЁМКУ</button>
+                <button class="btn btn-outline btn-sm" id="clearReceiptBtn" style="display:none;" onclick="clearReceipt()">🗑 ОЧИСТИТЬ</button>
             </div>
 
             <!-- Ручное перемещение -->
             <div class="card">
-                <h2>🚚 Ручное перемещение (поштучно)</h2>
+                <div class="card-header"><span class="icon">🚚</span><h2>Ручное перемещение</h2></div>
                 <div class="input-row">
-                    <select id="transferFrom"><option value="main">Откуда: Основной</option><option value="lenina">Откуда: Ленина</option></select>
-                    <select id="transferTo"><option value="lenina">Куда: Ленина</option><option value="main">Куда: Основной</option></select>
+                    <select id="transferFrom"><option value="main">ОТКУДА: ОСНОВНОЙ</option><option value="lenina">ОТКУДА: ЛЕНИНА</option></select>
+                    <select id="transferTo"><option value="lenina">КУДА: ЛЕНИНА</option><option value="main">КУДА: ОСНОВНОЙ</option></select>
                 </div>
-                <div class="input-row">
-                    <input type="text" id="transferBarcode" placeholder="Штрихкод">
-                    <button class="btn btn-outline btn-sm" onclick="addToTransfer()">➕</button>
-                </div>
-                <div class="table-wrap" id="transferTableWrap" style="display:none;">
-                    <table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead>
-                        <tbody id="transferBody"></tbody></table>
-                </div>
-                <button class="btn btn-primary" id="finishTransferBtn" style="display:none;" onclick="finishTransfer()">🚚 Выполнить перемещение</button>
-                <button class="btn btn-outline btn-sm" id="clearTransferBtn" style="display:none;" onclick="clearTransfer()">🗑 Очистить</button>
+                <div class="input-row"><input type="text" id="transferBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="addToTransfer()">➕</button></div>
+                <div class="table-wrap" id="transferTableWrap" style="display:none;"><table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead><tbody id="transferBody"></tbody></table></div>
+                <button class="btn btn-accent" id="finishTransferBtn" style="display:none;width:100%;" onclick="finishTransfer()">🚚 ВЫПОЛНИТЬ</button>
+                <button class="btn btn-outline btn-sm" id="clearTransferBtn" style="display:none;" onclick="clearTransfer()">🗑 ОЧИСТИТЬ</button>
             </div>
         </div>
     </div>
 
     <!-- Нижняя панель -->
-    <div class="bottom-bar">
-        <button class="btn btn-outline btn-sm" onclick="openSellModal()">💰 Списать (продажа)</button>
-        <button class="btn btn-danger btn-sm" onclick="openWriteoffModal()">🗑 Списать (брак)</button>
+    <div class="bottom-bar" id="bottomBar" style="display:none;">
+        <button class="btn btn-outline btn-sm" onclick="openSellModal()">💰 ПРОДАЖА</button>
+        <button class="btn btn-danger btn-sm" onclick="openWriteoffModal()">🗑 БРАК</button>
     </div>
 
-    <!-- Модалка: Продажа -->
+    <!-- Модалки -->
     <div class="modal-overlay hidden" id="sellModal">
         <div class="modal">
-            <h3>💰 Списание — продажа</h3>
+            <h3>💰 СПИСАНИЕ — ПРОДАЖА</h3>
             <div class="input-row"><input type="text" id="sellBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="lookupSell()">🔍</button></div>
-            <div id="sellInfo" style="font-size:13px;margin:8px 0;"></div>
-            <select id="sellStore" style="margin-bottom:8px;"><option value="main">Списать из: Основной</option><option value="lenina">Списать из: Ленина</option></select>
-            <div class="btn-group"><button class="btn btn-primary" onclick="confirmSell()">✅ Подтвердить</button><button class="btn btn-outline" onclick="closeSellModal()">Отмена</button></div>
+            <div id="sellInfo" style="font-size:12px;margin:8px 0;font-family:var(--font-mono);"></div>
+            <select id="sellStore"><option value="main">🏪 ОСНОВНОЙ</option><option value="lenina">🏪 ЛЕНИНА</option></select>
+            <div class="btn-group" style="margin-top:12px;"><button class="btn btn-accent" onclick="confirmSell()">✅ ПОДТВЕРДИТЬ</button><button class="btn btn-outline btn-sm" onclick="closeSellModal()">ОТМЕНА</button></div>
         </div>
     </div>
-
-    <!-- Модалка: Брак -->
     <div class="modal-overlay hidden" id="writeoffModal">
         <div class="modal">
-            <h3>🗑 Списание — брак</h3>
+            <h3>🗑 СПИСАНИЕ — БРАК</h3>
             <div class="input-row"><input type="text" id="writeoffBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="lookupWriteoff()">🔍</button></div>
-            <div id="writeoffInfo" style="font-size:13px;margin:8px 0;"></div>
-            <select id="writeoffStore" style="margin-bottom:8px;"><option value="main">Списать из: Основной</option><option value="lenina">Списать из: Ленина</option></select>
-            <div class="btn-group"><button class="btn btn-danger" onclick="confirmWriteoff()">✅ Списать брак</button><button class="btn btn-outline" onclick="closeWriteoffModal()">Отмена</button></div>
+            <div id="writeoffInfo" style="font-size:12px;margin:8px 0;font-family:var(--font-mono);"></div>
+            <select id="writeoffStore"><option value="main">🏪 ОСНОВНОЙ</option><option value="lenina">🏪 ЛЕНИНА</option></select>
+            <div class="btn-group" style="margin-top:12px;"><button class="btn btn-danger" onclick="confirmWriteoff()">✅ СПИСАТЬ БРАК</button><button class="btn btn-outline btn-sm" onclick="closeWriteoffModal()">ОТМЕНА</button></div>
         </div>
     </div>
 
@@ -620,7 +827,7 @@
 
     <script>
         // ==================== ДАННЫЕ ====================
-        const STORES = { main: 'Основной', lenina: 'Ленина' };
+        const STORES = { main: 'ОСНОВНОЙ', lenina: 'ЛЕНИНА' };
         const LS_PRODUCTS = 'stockflow_products';
         const LS_STOCK = 'stockflow_stock';
 
@@ -628,8 +835,8 @@
         let currentTab = 'scan';
         let receiptItems = [];
         let transferItems = [];
-        let batchParsedItems = []; // [{ barcode, qty, product, available, status }]
-        let batchOperation = null; // { type: 'receipt'|'transfer_out', store, transferTo? }
+        let batchParsedItems = [];
+        let batchOperation = null;
         let html5QrCode = null;
         let scannerActive = false;
         let lastScanned = '';
@@ -670,35 +877,56 @@
             if (!localStorage.getItem(LS_STOCK)) localStorage.setItem(LS_STOCK, JSON.stringify(getDefaultStock()));
         }
 
-        function getProducts() { return JSON.parse(localStorage.getItem(LS_PRODUCTS)); }
+        function getProducts() { return JSON.parse(localStorage.getItem(LS_PRODUCTS) || '{}'); }
 
-        function getStock() { return JSON.parse(localStorage.getItem(LS_STOCK)); }
+        function getStock() { return JSON.parse(localStorage.getItem(LS_STOCK) || '{}'); }
 
-        function saveStock(stock) { localStorage.setItem(LS_STOCK, JSON.stringify(stock)); }
+        function saveProducts(p) { localStorage.setItem(LS_PRODUCTS, JSON.stringify(p)); }
 
-        function getStockQty(barcode, store) {
-            const stock = getStock();
-            return (stock[barcode] && stock[barcode][store]) ? stock[barcode][store] : 0;
+        function saveStock(s) { localStorage.setItem(LS_STOCK, JSON.stringify(s)); }
+
+        function getStockQty(b, s) { const st = getStock(); return (st[b] && st[b][s]) ? st[b][s] : 0; }
+
+        function setStockQty(b, s, q) {
+            const st = getStock();
+            if (!st[b]) st[b] = { main: 0, lenina: 0 };
+            st[b][s] = Math.max(0, q);
+            saveStock(st);
         }
 
-        function setStockQty(barcode, store, qty) {
-            const stock = getStock();
-            if (!stock[barcode]) stock[barcode] = { main: 0, lenina: 0 };
-            stock[barcode][store] = Math.max(0, qty);
-            saveStock(stock);
-        }
+        function addStockQty(b, s, d) { setStockQty(b, s, getStockQty(b, s) + d); }
 
-        function addStockQty(barcode, store, delta) {
-            setStockQty(barcode, store, getStockQty(barcode, store) + delta);
+        function addProduct(barcode, article, name, size, price) {
+            const products = getProducts();
+            products[barcode] = {
+                article: article || 'NEW',
+                name: name || 'Новый товар',
+                size: size || '—',
+                price: parseInt(price) || 0
+            };
+            saveProducts(products);
         }
 
         // ==================== ТОСТЫ ====================
-        function showToast(msg) {
+        function showToast(m) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
+            t.textContent = m;
             t.classList.remove('hidden');
-            clearTimeout(t._t);
-            t._t = setTimeout(() => t.classList.add('hidden'), 2200);
+            clearTimeout(t._tt);
+            t._tt = setTimeout(() => t.classList.add('hidden'), 2500);
+        }
+
+        // ==================== ЗАСТАВКА ====================
+        function hideSplash() {
+            document.getElementById('splash').classList.add('hidden');
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('bottomBar').style.display = 'flex';
+            startScanner();
+            renderStockTable();
+            renderReceipt();
+            renderTransfer();
+            updateBatchUI();
+            setupDragDrop();
         }
 
         // ==================== МАГАЗИН ====================
@@ -707,7 +935,7 @@
             document.getElementById('currentStoreLabel').textContent = STORES[currentStore];
             document.getElementById('stockStoreLabel').textContent = STORES[currentStore];
             renderStockTable();
-            showToast('Магазин: ' + STORES[currentStore]);
+            showToast('МАГАЗИН: ' + STORES[currentStore]);
         }
 
         // ==================== ТАБЫ ====================
@@ -732,11 +960,9 @@
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 },
                     aspectRatio: 1.5 },
-                (text) => {
-                    if (text !== lastScanned) { lastScanned = text;
+                (text) => { if (text !== lastScanned) { lastScanned = text;
                         onBarcodeScanned(text.trim());
-                        setTimeout(() => lastScanned = '', 1500); }
-                },
+                        setTimeout(() => lastScanned = '', 1500); } },
                 () => {}
             ).then(() => scannerActive = true).catch(() => scannerActive = false);
         }
@@ -748,92 +974,92 @@
             }
         }
 
-        function onBarcodeScanned(barcode) {
-            document.getElementById('manualBarcode').value = barcode;
-            document.getElementById('scanResult').textContent = 'Штрихкод: ' + barcode;
-            showProductInfo(barcode);
-        }
+        function onBarcodeScanned(b) { document.getElementById('manualBarcode').value = b;
+            document.getElementById('scanResult').textContent = 'ШТРИХКОД: ' + b;
+            showProductInfo(b); }
 
         function manualScan() { const b = document.getElementById('manualBarcode').value.trim(); if (b)
                 onBarcodeScanned(b); }
 
-        function showProductInfo(barcode) {
-            const products = getProducts();
-            const p = products[barcode];
-            const container = document.getElementById('foundProduct');
-            const resultEl = document.getElementById('scanResult');
-            if (!p) {
-                container.classList.add('hidden');
-                resultEl.textContent = 'Штрихкод: ' + barcode + ' — не найден';
-                resultEl.className = 'scan-result not-found';
-                return;
-            }
-            resultEl.textContent = 'Штрихкод: ' + barcode;
-            resultEl.className = 'scan-result found';
-            const mq = getStockQty(barcode, 'main');
-            const lq = getStockQty(barcode, 'lenina');
-            const cq = getStockQty(barcode, currentStore);
-            container.classList.remove('hidden');
-            container.className = 'product-found';
-            container.innerHTML = `
+        function showProductInfo(b) {
+            const p = getProducts()[b];
+            const c = document.getElementById('foundProduct');
+            const r = document.getElementById('scanResult');
+            if (!p) { c.classList.add('hidden');
+                r.textContent = 'ШТРИХКОД: ' + b + ' — НЕ НАЙДЕН';
+                r.className = 'scan-result not-found'; return; }
+            r.textContent = 'ШТРИХКОД: ' + b;
+            r.className = 'scan-result found';
+            const mq = getStockQty(b, 'main'),
+                lq = getStockQty(b, 'lenina'),
+                cq = getStockQty(b, currentStore);
+            c.classList.remove('hidden');
+            c.className = 'product-found';
+            c.innerHTML = `
             <div class="name">${p.name}</div>
-            <div class="meta">Арт. ${p.article} | Размер: ${p.size} | Цена: ${p.price} ₽</div>
+            <div class="meta">АРТ. ${p.article} | РАЗМЕР: ${p.size} | ${p.price} ₽</div>
             <div class="stock-info">
-              <span class="stock-chip current">📍 ${STORES[currentStore]}: <b>${cq} шт.</b></span>
-              <span class="stock-chip">🏪 Осн: ${mq} шт.</span>
-              <span class="stock-chip">🏪 Лен: ${lq} шт.</span>
+              <span class="stock-chip current">📍 ${STORES[currentStore]}: <b>${cq}</b></span>
+              <span class="stock-chip">ОСН: ${mq}</span>
+              <span class="stock-chip">ЛЕН: ${lq}</span>
             </div>
             <div class="btn-group" style="margin-top:10px;">
-              <button class="btn btn-danger btn-sm" onclick="quickWriteoff('${barcode}')">🗑 Списать 1</button>
-              <button class="btn btn-outline btn-sm" onclick="quickSell('${barcode}')">💰 Продать 1</button>
+              <button class="btn btn-danger btn-sm" onclick="quickWriteoff('${b}')">🗑 СПИСАТЬ</button>
+              <button class="btn btn-outline btn-sm" onclick="quickSell('${b}')">💰 ПРОДАТЬ</button>
             </div>`;
         }
 
-        function quickWriteoff(barcode) {
-            if (getStockQty(barcode, currentStore) <= 0) { showToast('❌ Нет в наличии'); return; }
-            addStockQty(barcode, currentStore, -1);
-            showToast('🗑 Списано');
-            showProductInfo(barcode);
+        function quickWriteoff(b) {
+            if (getStockQty(b, currentStore) <= 0) { showToast('❌ НЕТ В НАЛИЧИИ'); return; }
+            addStockQty(b, currentStore, -1);
+            showToast('🗑 СПИСАНО');
+            showProductInfo(b);
             renderStockTable();
         }
 
-        function quickSell(barcode) {
-            if (getStockQty(barcode, currentStore) <= 0) { showToast('❌ Нет в наличии'); return; }
-            addStockQty(barcode, currentStore, -1);
-            showToast('💰 Продано');
-            showProductInfo(barcode);
+        function quickSell(b) {
+            if (getStockQty(b, currentStore) <= 0) { showToast('❌ НЕТ В НАЛИЧИИ'); return; }
+            addStockQty(b, currentStore, -1);
+            showToast('💰 ПРОДАНО');
+            showProductInfo(b);
             renderStockTable();
         }
 
-        // ==================== ТАБЛИЦА ОСТАТКОВ ====================
+        // ==================== ОСТАТКИ ====================
         function renderStockTable() {
             const products = getProducts();
             const stock = getStock();
             const search = (document.getElementById('stockSearch')?.value || '').toLowerCase();
             const tbody = document.querySelector('#stockTable tbody');
             tbody.innerHTML = '';
-            let count = 0;
-            Object.entries(stock).forEach(([barcode, stores]) => {
-                const p = products[barcode];
-                if (!p) return;
-                const qty = stores[currentStore] || 0;
-                if (search && !p.name.toLowerCase().includes(search) && !p.article.toLowerCase().includes(
-                        search) && !barcode.includes(search)) return;
-                count++;
+            let cnt = 0;
+            // Показываем все штрихкоды, которые есть в stock ИЛИ в products
+            const allBarcodes = new Set([...Object.keys(stock), ...Object.keys(products)]);
+            allBarcodes.forEach(b => {
+                const p = products[b];
+                const ss = stock[b] || { main: 0, lenina: 0 };
+                const q = ss[currentStore] || 0;
+                if (!p && q === 0) return; // Пропускаем неизвестные с нулевым остатком
+                const name = p ? p.name : '—';
+                const article = p ? p.article : '—';
+                const size = p ? p.size : '—';
+                const price = p ? p.price : 0;
+                if (search && !name.toLowerCase().includes(search) && !article.toLowerCase().includes(search) && !b
+                    .includes(search)) return;
+                cnt++;
                 let cls = 'stock-zero';
-                if (qty > 3) cls = 'stock-ok';
-                else if (qty > 0) cls = 'stock-low';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-              <td>${p.article}</td><td>${p.name}</td><td>${p.size}</td><td>${p.price} ₽</td>
-              <td class="stock-cell ${cls}">${qty}</td>
+                if (q > 3) cls = 'stock-ok';
+                else if (q > 0) cls = 'stock-low';
+                tbody.innerHTML += `<tr>
+              <td style="font-size:10px;color:var(--sub);">${b}</td>
+              <td>${article}</td><td>${name}</td><td>${size}</td><td>${price} ₽</td>
+              <td class="stock-cell ${cls}">${q}</td>
               <td>
-                <button class="btn btn-outline btn-xs" onclick="quickSellFromTable('${barcode}')">💰</button>
-                <button class="btn btn-danger btn-xs" onclick="quickWriteoffFromTable('${barcode}')">🗑</button>
-              </td>`;
-                tbody.appendChild(tr);
+                <button class="btn btn-outline btn-xs" onclick="quickSellFromTable('${b}')">💰</button>
+                <button class="btn btn-danger btn-xs" onclick="quickWriteoffFromTable('${b}')">🗑</button>
+              </td></tr>`;
             });
-            document.getElementById('stockCount').textContent = 'Показано: ' + count + ' позиций';
+            document.getElementById('stockCount').textContent = 'ПОКАЗАНО: ' + cnt;
         }
 
         function quickSellFromTable(b) { quickSell(b);
@@ -846,7 +1072,6 @@
         function addToReceipt() {
             const b = document.getElementById('receiptBarcode').value.trim();
             if (!b) return;
-            if (!getProducts()[b]) { showToast('❌ Не найден'); return; }
             const ex = receiptItems.find(i => i.barcode === b);
             ex ? ex.qty++ : receiptItems.push({ barcode: b, qty: 1 });
             document.getElementById('receiptBarcode').value = '';
@@ -854,35 +1079,41 @@
         }
 
         function renderReceipt() {
-            const products = getProducts();
-            const tbody = document.getElementById('receiptBody');
-            const wrap = document.getElementById('receiptTableWrap');
-            const fb = document.getElementById('finishReceiptBtn');
-            const cb = document.getElementById('clearReceiptBtn');
-            const ce = document.getElementById('receiptCount');
-            if (!receiptItems.length) { wrap.style.display = 'none';
+            const p = getProducts();
+            const w = document.getElementById('receiptTableWrap'),
+                tb = document.getElementById('receiptBody'),
+                fb = document.getElementById('finishReceiptBtn'),
+                cb = document.getElementById('clearReceiptBtn'),
+                ce = document.getElementById('receiptCount');
+            if (!receiptItems.length) { w.style.display = 'none';
                 fb.style.display = 'none';
                 cb.style.display = 'none';
                 ce.textContent = ''; return; }
-            wrap.style.display = 'block';
-            fb.style.display = 'inline-flex';
+            w.style.display = 'block';
+            fb.style.display = 'block';
             cb.style.display = 'inline-flex';
-            tbody.innerHTML = '';
-            let total = 0;
+            tb.innerHTML = '';
+            let t = 0;
             receiptItems.forEach(i => {
-                const p = products[i.barcode] || { article: '?', name: '?', size: '?' };
-                total += i.qty;
-                tbody.innerHTML +=
-                    `<tr><td>${i.barcode}</td><td>${p.name}</td><td>${p.size}</td><td><b>${i.qty}</b></td></tr>`;
+                const pr = p[i.barcode] || { name: 'Новый', size: '—' };
+                t += i.qty;
+                tb.innerHTML +=
+                    `<tr><td>${i.barcode}</td><td>${pr.name}</td><td>${pr.size}</td><td><b>${i.qty}</b></td></tr>`;
             });
-            ce.textContent = 'Всего: ' + total + ' ед.';
+            ce.textContent = 'ВСЕГО: ' + t + ' ЕД.';
         }
 
         function finishReceipt() {
             if (!receiptItems.length) return;
-            const store = document.getElementById('receiptStore').value;
-            receiptItems.forEach(i => addStockQty(i.barcode, store, i.qty));
-            showToast('✅ Приёмка: ' + receiptItems.length + ' позиций → ' + STORES[store]);
+            const s = document.getElementById('receiptStore').value;
+            receiptItems.forEach(i => {
+                if (!getProducts()[i.barcode]) {
+                    addProduct(i.barcode, 'NEW', 'Новый товар', '—', 0);
+                }
+                addStockQty(i.barcode, s, i.qty);
+            });
+            const total = receiptItems.reduce((sum, i) => sum + i.qty, 0);
+            showToast('✅ ПРИЁМКА: ' + total + ' ЕД. → ' + STORES[s]);
             clearReceipt();
             renderStockTable();
         }
@@ -894,7 +1125,6 @@
         function addToTransfer() {
             const b = document.getElementById('transferBarcode').value.trim();
             if (!b) return;
-            if (!getProducts()[b]) { showToast('❌ Не найден'); return; }
             const ex = transferItems.find(i => i.barcode === b);
             ex ? ex.qty++ : transferItems.push({ barcode: b, qty: 1 });
             document.getElementById('transferBarcode').value = '';
@@ -902,40 +1132,41 @@
         }
 
         function renderTransfer() {
-            const products = getProducts();
-            const tbody = document.getElementById('transferBody');
-            const wrap = document.getElementById('transferTableWrap');
-            const fb = document.getElementById('finishTransferBtn');
-            const cb = document.getElementById('clearTransferBtn');
-            if (!transferItems.length) { wrap.style.display = 'none';
+            const p = getProducts();
+            const w = document.getElementById('transferTableWrap'),
+                tb = document.getElementById('transferBody'),
+                fb = document.getElementById('finishTransferBtn'),
+                cb = document.getElementById('clearTransferBtn');
+            if (!transferItems.length) { w.style.display = 'none';
                 fb.style.display = 'none';
                 cb.style.display = 'none'; return; }
-            wrap.style.display = 'block';
-            fb.style.display = 'inline-flex';
+            w.style.display = 'block';
+            fb.style.display = 'block';
             cb.style.display = 'inline-flex';
-            tbody.innerHTML = '';
+            tb.innerHTML = '';
             transferItems.forEach(i => {
-                const p = products[i.barcode] || { article: '?', name: '?', size: '?' };
-                tbody.innerHTML +=
-                    `<tr><td>${i.barcode}</td><td>${p.name}</td><td>${p.size}</td><td><b>${i.qty}</b></td></tr>`;
+                const pr = p[i.barcode] || { name: '—', size: '—' };
+                tb.innerHTML +=
+                    `<tr><td>${i.barcode}</td><td>${pr.name}</td><td>${pr.size}</td><td><b>${i.qty}</b></td></tr>`;
             });
         }
 
         function finishTransfer() {
             if (!transferItems.length) return;
-            const from = document.getElementById('transferFrom').value;
-            const to = document.getElementById('transferTo').value;
-            if (from === to) { showToast('❌ Совпадают'); return; }
+            const from = document.getElementById('transferFrom').value,
+                to = document.getElementById('transferTo').value;
+            if (from === to) { showToast('❌ СОВПАДАЮТ'); return; }
             let err = false;
             transferItems.forEach(i => {
-                if (getStockQty(i.barcode, from) < i.qty) { showToast('❌ Не хватает в ' + STORES[from] + ': ' + (
-                        getProducts()[i.barcode]?.name || i.barcode));
-                    err = true; }
+                if (getStockQty(i.barcode, from) < i.qty) {
+                    showToast('❌ НЕ ХВАТАЕТ: ' + i.barcode);
+                    err = true;
+                }
             });
             if (err) return;
             transferItems.forEach(i => { addStockQty(i.barcode, from, -i.qty);
                 addStockQty(i.barcode, to, i.qty); });
-            showToast('🚚 Перемещено → ' + STORES[to]);
+            showToast('🚚 ПЕРЕМЕЩЕНО → ' + STORES[to]);
             clearTransfer();
             renderStockTable();
         }
@@ -945,183 +1176,189 @@
 
         // ==================== ПАКЕТНАЯ ЗАГРУЗКА ====================
         function updateBatchUI() {
-            const type = document.getElementById('batchOpType').value;
-            document.getElementById('batchStoreRow').classList.toggle('hidden', false);
-            document.getElementById('batchTransferToRow').classList.toggle('hidden', type === 'receipt');
+            const t = document.getElementById('batchOpType').value;
+            document.getElementById('batchTransferToRow').classList.toggle('hidden', t === 'receipt');
         }
 
-        function parseBarcodesFromText(text) {
-            // Разделяем по запятым, точкам с запятой, пробелам, табуляции, новым строкам
-            const parts = text.split(/[\s,;\t\n\r]+/).filter(s => s.length > 0);
-            const counts = {};
-            parts.forEach(p => {
-                const trimmed = p.trim();
-                if (trimmed) counts[trimmed] = (counts[trimmed] || 0) + 1;
-            });
-            return counts; // { barcode: qty }
+        function parseBarcodesFromText(t) {
+            const parts = t.split(/[\s,;\t\n\r]+/).filter(s => s.length > 0);
+            const c = {};
+            parts.forEach(p => { const tp = p.trim(); if (tp) c[tp] = (c[tp] || 0) + 1; });
+            return c;
         }
 
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result;
-                document.getElementById('batchText').value = text;
-                parseBatchText();
-            };
-            reader.readAsText(file);
+        function handleFileUpload(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = function(ev) { document.getElementById('batchText').value = ev.target.result;
+                parseBatchText(); };
+            r.readAsText(f);
         }
 
         function parseBatchText() {
             const text = document.getElementById('batchText').value.trim();
-            if (!text) { showToast('❌ Вставьте текст или загрузите файл'); return; }
+            if (!text) { showToast('❌ ПУСТО'); return; }
             const counts = parseBarcodesFromText(text);
             const barcodes = Object.keys(counts);
-            if (barcodes.length === 0) { showToast('❌ Штрихкоды не найдены'); return; }
-
+            if (!barcodes.length) { showToast('❌ НЕТ ШТРИХКОДОВ'); return; }
             const type = document.getElementById('batchOpType').value;
             const store = document.getElementById('batchStore').value;
             const transferTo = type === 'transfer_out' ? document.getElementById('batchTransferTo').value : null;
             const products = getProducts();
-
             batchParsedItems = [];
-            let totalQty = 0;
-            let foundCount = 0;
-            let unknownCount = 0;
-            let lowStockCount = 0;
-
-            barcodes.forEach(barcode => {
-                const qty = counts[barcode];
-                const product = products[barcode] || null;
-                const available = type === 'receipt' ? 9999 : getStockQty(barcode, store);
-                let status = 'ok'; // ok, unknown, low
-
-                if (!product) {
-                    status = 'unknown';
-                    unknownCount++;
-                } else if (type === 'transfer_out' && available < qty) {
-                    status = 'low';
-                    lowStockCount++;
-                }
-                if (product) foundCount++;
-                totalQty += qty;
-
-                batchParsedItems.push({
-                    barcode,
-                    qty,
-                    product,
-                    available: type === 'receipt' ? '—' : available,
-                    status
-                });
+            let tQty = 0,
+                unk = 0,
+                low = 0;
+            barcodes.forEach(b => {
+                const q = counts[b],
+                    pr = products[b] || null,
+                    av = type === 'receipt' ? '—' : getStockQty(b, store);
+                let st = 'ok';
+                if (!pr) { st = 'unknown';
+                    unk++; } else if (type === 'transfer_out' && av < q) { st = 'low';
+                    low++; }
+                tQty += q;
+                batchParsedItems.push({ barcode: b, qty: q, product: pr, available: av, status: st });
             });
-
             batchOperation = { type, store, transferTo };
             renderBatchResult();
-            showToast(`🔍 Найдено: ${barcodes.length} уникальных штрихкодов, ${totalQty} ед.`);
+            showToast(`🔍 ${barcodes.length} ШТРИХКОДОВ, ${tQty} ЕД.`);
         }
 
         function renderBatchResult() {
-            const card = document.getElementById('batchResultCard');
-            const summary = document.getElementById('batchSummary');
-            const wrap = document.getElementById('batchTableWrap');
-            const tbody = document.getElementById('batchTableBody');
-            const confirmBtn = document.getElementById('confirmBatchBtn');
-
+            const card = document.getElementById('batchResultCard'),
+                sum = document.getElementById('batchSummary'),
+                wrap = document.getElementById('batchTableWrap'),
+                tbody = document.getElementById('batchTableBody'),
+                btn = document.getElementById('confirmBatchBtn'),
+                newSection = document.getElementById('newProductsSection'),
+                newList = document.getElementById('newProductsList');
             if (!batchParsedItems.length) { card.classList.add('hidden'); return; }
             card.classList.remove('hidden');
+            const uq = batchParsedItems.length,
+                tQ = batchParsedItems.reduce((s, i) => s + i.qty, 0),
+                unk = batchParsedItems.filter(i => i.status === 'unknown').length,
+                low = batchParsedItems.filter(i => i.status === 'low').length;
+            sum.innerHTML = `
+            <div class="summary-row"><span>Уникальных штрихкодов:</span><b>${uq}</b></div>
+            <div class="summary-row"><span>Всего единиц:</span><b>${tQ}</b></div>
+            <div class="summary-row"><span>Найдено в базе:</span><span class="tag tag-ok">${uq - unk}</span></div>
+            ${unk ? `<div class="summary-row"><span>Новых (будут добавлены):</span><span class="tag tag-new">${unk}</span></div>` : ''}
+            ${low ? `<div class="summary-row"><span>Не хватает остатков:</span><span class="tag tag-warn">${low}</span></div>` : ''}
+            <div class="summary-row total"><span>ОПЕРАЦИЯ:</span><span>${batchOperation.type === 'receipt' ? '📥 ПРИЁМКА → ' + STORES[batchOperation.store] : '🚚 ' + STORES[batchOperation.store] + ' → ' + STORES[batchOperation.transferTo]}</span></div>`;
 
-            const totalQty = batchParsedItems.reduce((s, i) => s + i.qty, 0);
-            const unique = batchParsedItems.length;
-            const unknown = batchParsedItems.filter(i => i.status === 'unknown').length;
-            const low = batchParsedItems.filter(i => i.status === 'low').length;
+            // Таблица
+            const items = batchParsedItems.slice(0, 30);
+            wrap.style.display = 'block';
+            tbody.innerHTML = items.map(i => {
+                const p = i.product;
+                let tag = '<span class="tag tag-ok">✓</span>';
+                if (i.status === 'unknown') tag = '<span class="tag tag-new">НОВЫЙ</span>';
+                if (i.status === 'low') tag = '<span class="tag tag-warn">МАЛО</span>';
+                return `<tr><td>${i.barcode}</td><td>${p?p.name:'—'}</td><td>${p?p.size:'—'}</td><td><b>${i.qty}</b></td><td>${i.available}</td><td>${tag}</td></tr>`;
+            }).join('');
+            if (batchParsedItems.length > 30) tbody.innerHTML +=
+                `<tr><td colspan="6" style="text-align:center;color:#555;">… И ЕЩЁ ${batchParsedItems.length-30}</td></tr>`;
 
-            summary.innerHTML = `
-            <div class="summary-row"><span>Уникальных штрихкодов:</span><b>${unique}</b></div>
-            <div class="summary-row"><span>Всего единиц:</span><b>${totalQty}</b></div>
-            <div class="summary-row"><span>Найдено в базе:</span><span class="tag tag-ok">${unique - unknown}</span></div>
-            ${unknown > 0 ? `<div class="summary-row"><span>Не найдено в базе:</span><span class="tag tag-err">${unknown}</span></div>` : ''}
-            ${low > 0 ? `<div class="summary-row"><span>Не хватает остатков:</span><span class="tag tag-warn">${low}</span></div>` : ''}
-            <div class="summary-row total"><span>Операция:</span><span>${batchOperation.type === 'receipt' ? '📥 Приёмка в ' + STORES[batchOperation.store] : '🚚 Перемещение ' + STORES[batchOperation.store] + ' → ' + STORES[batchOperation.transferTo]}</span></div>
-          `;
-
-            if (batchParsedItems.length > 20) {
-                wrap.style.display = 'block';
-                tbody.innerHTML = batchParsedItems.slice(0, 20).map(i => {
-                    const p = i.product;
-                    let statusTag = '<span class="tag tag-ok">✓</span>';
-                    if (i.status === 'unknown') statusTag = '<span class="tag tag-unknown">Неизв.</span>';
-                    if (i.status === 'low') statusTag = '<span class="tag tag-warn">Мало</span>';
-                    return `<tr>
-                <td>${i.barcode}</td>
-                <td>${p ? p.name : '—'}</td>
-                <td>${p ? p.size : '—'}</td>
-                <td><b>${i.qty}</b></td>
-                <td>${i.available}</td>
-                <td>${statusTag}</td>
-              </tr>`;
-                }).join('');
-                if (batchParsedItems.length > 20) {
-                    tbody.innerHTML +=
-                        `<tr><td colspan="6" style="text-align:center;color:var(--sub);">… и ещё ${batchParsedItems.length - 20} позиций</td></tr>`;
-                }
+            // Секция новых товаров
+            const unknownItems = batchParsedItems.filter(i => i.status === 'unknown');
+            if (unknownItems.length > 0 && batchOperation.type === 'receipt') {
+                newSection.classList.remove('hidden');
+                // Убираем дубликаты по штрихкоду
+                const uniqueUnknown = [];
+                const seen = new Set();
+                unknownItems.forEach(i => { if (!seen.has(i.barcode)) { seen.add(i.barcode);
+                        uniqueUnknown.push(i); } });
+                newList.innerHTML = uniqueUnknown.map((i, idx) => `
+                <div class="inline-edit" style="margin-bottom:6px;">
+                  <span style="font-size:10px;color:var(--sub);min-width:70px;">${i.barcode}</span>
+                  <input type="text" placeholder="Артикул" class="new-art" data-barcode="${i.barcode}" value="NEW${idx+1}" style="max-width:80px;">
+                  <input type="text" placeholder="Название" class="new-name" data-barcode="${i.barcode}" value="Новый товар ${idx+1}" style="max-width:120px;">
+                  <input type="text" placeholder="Размер" class="new-size" data-barcode="${i.barcode}" value="—" style="max-width:60px;">
+                  <input type="number" placeholder="Цена" class="new-price" data-barcode="${i.barcode}" value="0" style="max-width:70px;">
+                </div>
+              `).join('');
             } else {
-                wrap.style.display = 'block';
-                tbody.innerHTML = batchParsedItems.map(i => {
-                    const p = i.product;
-                    let statusTag = '<span class="tag tag-ok">✓</span>';
-                    if (i.status === 'unknown') statusTag = '<span class="tag tag-unknown">Неизв.</span>';
-                    if (i.status === 'low') statusTag = '<span class="tag tag-warn">Мало</span>';
-                    return `<tr>
-                <td>${i.barcode}</td>
-                <td>${p ? p.name : '—'}</td>
-                <td>${p ? p.size : '—'}</td>
-                <td><b>${i.qty}</b></td>
-                <td>${i.available}</td>
-                <td>${statusTag}</td>
-              </tr>`;
-                }).join('');
+                newSection.classList.add('hidden');
             }
 
-            confirmBtn.textContent = batchOperation.type === 'receipt' ? '✅ Подтвердить приёмку' :
-                '🚚 Подтвердить перемещение';
-            confirmBtn.classList.toggle('btn-success', batchOperation.type === 'receipt');
-            confirmBtn.classList.toggle('btn-primary', batchOperation.type !== 'receipt');
+            // Кнопка подтверждения всегда активна для приёмки
+            btn.disabled = false;
+            btn.textContent = batchOperation.type === 'receipt' ? '✅ ПОДТВЕРДИТЬ ПРИЁМКУ' : '🚚 ПОДТВЕРДИТЬ ПЕРЕМЕЩЕНИЕ';
+            btn.className = 'btn btn-accent';
+
+            // Для перемещения — блокируем если есть неизвестные или нехватка
+            if (batchOperation.type === 'transfer_out') {
+                if (unk > 0) {
+                    btn.disabled = true;
+                    btn.textContent = '❌ ЕСТЬ НЕИЗВЕСТНЫЕ ШТРИХКОДЫ';
+                } else if (low > 0) {
+                    btn.disabled = true;
+                    btn.textContent = '❌ НЕ ХВАТАЕТ ОСТАТКОВ';
+                }
+            }
+        }
+
+        function autoFillNewProducts() {
+            const arts = document.querySelectorAll('.new-art');
+            const names = document.querySelectorAll('.new-name');
+            arts.forEach((inp, i) => { if (!inp.value || inp.value.startsWith('NEW'))
+                    inp.value = 'AUTO' + (i + 1); });
+            names.forEach((inp, i) => { if (!inp.value || inp.value.startsWith('Новый товар'))
+                    inp.value = 'Товар ' + (i + 1); });
+            showToast('⚡ АВТОЗАПОЛНЕНО');
         }
 
         function confirmBatchOperation() {
             if (!batchOperation || !batchParsedItems.length) return;
-
             const { type, store, transferTo } = batchOperation;
-            let hasError = false;
 
-            // Проверка для перемещения
-            if (type === 'transfer_out') {
-                batchParsedItems.forEach(i => {
-                    if (i.status === 'unknown') {
-                        showToast('⚠️ В списке есть неизвестные штрихкоды. Удалите их или проверьте базу.');
-                        hasError = true;
-                    }
-                    if (i.status === 'low') {
-                        showToast('❌ Не хватает остатков: ' + (i.product?.name || i.barcode));
-                        hasError = true;
-                    }
-                });
-                if (hasError) return;
-            }
-
-            // Выполнение
+            // Собираем данные о новых товарах из полей ввода
             if (type === 'receipt') {
+                const newArts = document.querySelectorAll('.new-art');
+                const newNames = document.querySelectorAll('.new-name');
+                const newSizes = document.querySelectorAll('.new-size');
+                const newPrices = document.querySelectorAll('.new-price');
+                const newData = {};
+                newArts.forEach(inp => {
+                    const barcode = inp.dataset.barcode;
+                    newData[barcode] = {
+                        article: inp.value.trim() || 'NEW',
+                        name: document.querySelector(`.new-name[data-barcode="${barcode}"]`)?.value
+                            .trim() || 'Новый товар',
+                        size: document.querySelector(`.new-size[data-barcode="${barcode}"]`)?.value.trim() ||
+                            '—',
+                        price: parseInt(document.querySelector(`.new-price[data-barcode="${barcode}"]`)
+                            ?.value) || 0
+                    };
+                });
+
+                // Добавляем новые товары в базу
                 batchParsedItems.forEach(i => {
+                    if (i.status === 'unknown' && newData[i.barcode]) {
+                        const nd = newData[i.barcode];
+                        addProduct(i.barcode, nd.article, nd.name, nd.size, nd.price);
+                    }
                     addStockQty(i.barcode, store, i.qty);
                 });
-                showToast(`✅ Приёмка: ${batchParsedItems.length} позиций → ${STORES[store]}`);
+                const total = batchParsedItems.reduce((s, i) => s + i.qty, 0);
+                showToast(`✅ ПРИЁМКА: ${total} ЕД. → ${STORES[store]}`);
             } else if (type === 'transfer_out') {
+                // Проверка
+                let err = false;
+                batchParsedItems.forEach(i => {
+                    if (i.status === 'low' || i.status === 'unknown') {
+                        showToast('❌ НЕВОЗМОЖНО: ' + i.barcode);
+                        err = true;
+                    }
+                });
+                if (err) return;
                 batchParsedItems.forEach(i => {
                     addStockQty(i.barcode, store, -i.qty);
                     addStockQty(i.barcode, transferTo, i.qty);
                 });
-                showToast(`🚚 Перемещено: ${batchParsedItems.length} позиций → ${STORES[transferTo]}`);
+                showToast('🚚 ПЕРЕМЕЩЕНО → ' + STORES[transferTo]);
             }
 
             clearBatch();
@@ -1134,6 +1371,23 @@
             document.getElementById('batchResultCard').classList.add('hidden');
             document.getElementById('batchText').value = '';
             document.getElementById('fileInput').value = '';
+            document.getElementById('newProductsSection').classList.add('hidden');
+        }
+
+        function setupDragDrop() {
+            const a = document.getElementById('fileDropArea');
+            if (!a) return;
+            ['dragenter', 'dragover'].forEach(e => a.addEventListener(e, ev => { ev.preventDefault();
+                a.classList.add('drag-over'); }));
+            ['dragleave', 'drop'].forEach(e => a.addEventListener(e, ev => { ev.preventDefault();
+                a.classList.remove('drag-over'); }));
+            a.addEventListener('drop', ev => {
+                const f = ev.dataTransfer.files[0];
+                if (f) { const r = new FileReader();
+                    r.onload = function(ev2) { document.getElementById('batchText').value = ev2.target.result;
+                        parseBatchText(); };
+                    r.readAsText(f); }
+            });
         }
 
         // ==================== МОДАЛКИ ====================
@@ -1148,16 +1402,16 @@
             if (!b) return;
             const p = getProducts()[b];
             document.getElementById('sellInfo').textContent = p ?
-                `${p.name}, разм. ${p.size}, ${p.price} ₽ | В нал.: ${getStockQty(b, document.getElementById('sellStore').value)} шт.` :
-                '❌ Не найден';
+                `${p.name} | ${p.size} | ${p.price} ₽ | В НАЛ: ${getStockQty(b, document.getElementById('sellStore').value)}` :
+                '❌ НЕ НАЙДЕН';
         }
 
         function confirmSell() {
-            const b = document.getElementById('sellBarcode').value.trim();
-            const s = document.getElementById('sellStore').value;
-            if (!b || getStockQty(b, s) <= 0) { showToast('❌ Нет в наличии'); return; }
+            const b = document.getElementById('sellBarcode').value.trim(),
+                s = document.getElementById('sellStore').value;
+            if (!b || getStockQty(b, s) <= 0) { showToast('❌ НЕТ В НАЛИЧИИ'); return; }
             addStockQty(b, s, -1);
-            showToast('💰 Продано');
+            showToast('💰 ПРОДАНО');
             closeSellModal();
             renderStockTable();
         }
@@ -1173,54 +1427,28 @@
             if (!b) return;
             const p = getProducts()[b];
             document.getElementById('writeoffInfo').textContent = p ?
-                `${p.name}, разм. ${p.size} | В нал.: ${getStockQty(b, document.getElementById('writeoffStore').value)} шт.` :
-                '❌ Не найден';
+                `${p.name} | ${p.size} | В НАЛ: ${getStockQty(b, document.getElementById('writeoffStore').value)}` :
+                '❌ НЕ НАЙДЕН';
         }
 
         function confirmWriteoff() {
-            const b = document.getElementById('writeoffBarcode').value.trim();
-            const s = document.getElementById('writeoffStore').value;
-            if (!b || getStockQty(b, s) <= 0) { showToast('❌ Нет в наличии'); return; }
+            const b = document.getElementById('writeoffBarcode').value.trim(),
+                s = document.getElementById('writeoffStore').value;
+            if (!b || getStockQty(b, s) <= 0) { showToast('❌ НЕТ В НАЛИЧИИ'); return; }
             addStockQty(b, s, -1);
-            showToast('🗑 Списано (брак)');
+            showToast('🗑 БРАК СПИСАН');
             closeWriteoffModal();
             renderStockTable();
-        }
-
-        // ==================== DRAG & DROP ====================
-        function setupDragDrop() {
-            const area = document.getElementById('fileDropArea');
-            if (!area) return;
-            ['dragenter', 'dragover'].forEach(ev => area.addEventListener(ev, e => { e.preventDefault();
-                area.classList.add('drag-over'); }));
-            ['dragleave', 'drop'].forEach(ev => area.addEventListener(ev, e => { e.preventDefault();
-                area.classList.remove('drag-over'); }));
-            area.addEventListener('drop', e => {
-                const file = e.dataTransfer.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        document.getElementById('batchText').value = ev.target.result;
-                        parseBatchText();
-                    };
-                    reader.readAsText(file);
-                }
-            });
         }
 
         // ==================== ИНИТ ====================
         function init() {
             loadData();
-            updateBatchUI();
-            startScanner();
-            renderStockTable();
-            renderReceipt();
-            renderTransfer();
-            setupDragDrop();
-            document.getElementById('sellModal').addEventListener('click', e => { if (e.target === document
-                    .getElementById('sellModal')) closeSellModal(); });
-            document.getElementById('writeoffModal').addEventListener('click', e => { if (e.target === document
-                    .getElementById('writeoffModal')) closeWriteoffModal(); });
+            setTimeout(hideSplash, 2000);
+            document.getElementById('sellModal').addEventListener('click', function(e) { if (e.target === this)
+                    closeSellModal(); });
+            document.getElementById('writeoffModal').addEventListener('click', function(e) { if (e.target === this)
+                    closeWriteoffModal(); });
         }
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('visibilitychange', () => {
