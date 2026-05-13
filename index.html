@@ -15,9 +15,10 @@
             --accent: #1a73e8;
             --danger: #d93025;
             --success: #0d904f;
+            --warning: #e67e00;
             --border: #e0e0e0;
             --radius: 12px;
-            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
         * {
             margin: 0;
@@ -29,11 +30,9 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
         }
-
-        /* Шапка */
         .header {
             background: #1a1a1a;
             color: #fff;
@@ -62,15 +61,11 @@
         .store-badge.active {
             background: var(--accent);
         }
-
-        /* Контейнер */
         .container {
             padding: 12px;
             max-width: 500px;
             margin: 0 auto;
         }
-
-        /* Карточка */
         .card {
             background: var(--card);
             border-radius: var(--radius);
@@ -86,11 +81,12 @@
             align-items: center;
             gap: 8px;
         }
-        .card h2 .icon {
-            font-size: 18px;
+        .card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 12px 0 8px;
+            color: #333;
         }
-
-        /* Сканер */
         #reader {
             width: 100%;
             border-radius: var(--radius);
@@ -114,8 +110,6 @@
         .scan-result.not-found {
             color: var(--danger);
         }
-
-        /* Кнопки */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -149,44 +143,65 @@
             border: 1px solid var(--danger);
             color: var(--danger);
         }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
         .btn-sm {
             padding: 6px 12px;
             font-size: 13px;
+        }
+        .btn-xs {
+            padding: 4px 8px;
+            font-size: 11px;
         }
         .btn-group {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
         }
-
-        /* Инпут */
-        .input-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
+        .btn-block {
+            width: 100%;
+            justify-content: center;
         }
         input,
-        select {
-            flex: 1;
+        select,
+        textarea {
+            width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
             background: #fff;
-            min-width: 0;
+            font-family: inherit;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
         input:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--accent);
         }
-
-        /* Таблица */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .input-row input,
+        .input-row select {
+            flex: 1;
+            min-width: 0;
+        }
         .table-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin: 0 -4px;
+            margin: 8px -4px;
             padding: 0 4px;
+            max-height: 300px;
+            overflow-y: auto;
         }
         table {
             width: 100%;
@@ -219,13 +234,11 @@
             color: #ccc;
         }
         .stock-low {
-            color: #e67e00;
+            color: var(--warning);
         }
         .stock-ok {
             color: var(--success);
         }
-
-        /* Товар в сканере */
         .product-found {
             background: #f0f7f0;
             border-radius: var(--radius);
@@ -258,8 +271,6 @@
             background: #d4e4fc;
             font-weight: 600;
         }
-
-        /* Табы */
         .tabs {
             display: flex;
             gap: 4px;
@@ -282,15 +293,13 @@
         }
         .tab.active {
             background: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             font-weight: 600;
         }
-
-        /* Модалка */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 200;
             display: flex;
             align-items: flex-end;
@@ -302,7 +311,7 @@
             padding: 20px 16px 30px;
             width: 100%;
             max-width: 500px;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
         .modal h3 {
@@ -311,8 +320,6 @@
         .modal .btn-group {
             margin-top: 12px;
         }
-
-        /* Нижняя панель */
         .bottom-bar {
             position: fixed;
             bottom: 0;
@@ -333,7 +340,6 @@
             font-size: 13px;
             padding: 10px;
         }
-
         .hidden {
             display: none !important;
         }
@@ -365,11 +371,78 @@
                 transform: translateX(-50%) translateY(0);
             }
         }
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        .file-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .file-area:hover,
+        .file-area.drag-over {
+            border-color: var(--accent);
+            background: #f0f5ff;
+        }
+        .file-area .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .file-area .text {
+            font-size: 13px;
+            color: var(--sub);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .summary-row.total {
+            font-weight: 700;
+            border-top: 2px solid #333;
+            margin-top: 4px;
+            padding-top: 10px;
+            font-size: 15px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .tag-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        .tag-warn {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .tag-err {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .tag-unknown {
+            background: #e8e8e8;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-
-    <!-- Шапка -->
     <div class="header">
         <h1>📦 StockFlow</h1>
         <button class="store-badge active" id="storeBtn" onclick="toggleStore()">
@@ -377,20 +450,17 @@
         </button>
     </div>
 
-    <!-- Основной контейнер -->
     <div class="container" id="mainContent">
-
-        <!-- Табы -->
         <div class="tabs">
             <button class="tab active" onclick="switchTab('scan')">📷 Сканер</button>
             <button class="tab" onclick="switchTab('stock')">📋 Остатки</button>
             <button class="tab" onclick="switchTab('ops')">⚙️ Операции</button>
         </div>
 
-        <!-- Вкладка: Сканер -->
+        <!-- Сканер -->
         <div id="tab-scan">
             <div class="card">
-                <h2><span class="icon">📷</span> Сканер штрихкода</h2>
+                <h2>📷 Сканер штрихкода</h2>
                 <div id="reader"></div>
                 <div class="scan-result" id="scanResult">Наведите камеру на штрихкод</div>
                 <div class="input-row">
@@ -401,25 +471,16 @@
             </div>
         </div>
 
-        <!-- Вкладка: Остатки -->
+        <!-- Остатки -->
         <div id="tab-stock" class="hidden">
             <div class="card">
-                <h2><span class="icon">📋</span> Остатки — <span id="stockStoreLabel">Основной</span></h2>
+                <h2>📋 Остатки — <span id="stockStoreLabel">Основной</span></h2>
                 <div class="input-row">
                     <input type="text" id="stockSearch" placeholder="🔍 Поиск по названию или артикулу" oninput="renderStockTable()">
                 </div>
                 <div class="table-wrap">
                     <table id="stockTable">
-                        <thead>
-                            <tr>
-                                <th>Артикул</th>
-                                <th>Название</th>
-                                <th>Размер</th>
-                                <th>Цена</th>
-                                <th>Остаток</th>
-                                <th></th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Артикул</th><th>Название</th><th>Размер</th><th>Цена</th><th>Остаток</th><th></th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -427,54 +488,99 @@
             </div>
         </div>
 
-        <!-- Вкладка: Операции -->
+        <!-- Операции -->
         <div id="tab-ops" class="hidden">
+            <!-- Пакетная загрузка -->
             <div class="card">
-                <h2><span class="icon">📥</span> Приёмка поставки</h2>
-                <p style="font-size:13px;color:var(--sub);margin-bottom:8px;">Сканируйте товары подряд, количество суммируется.</p>
+                <h2>📥 Пакетная загрузка штрихкодов</h2>
+                <p style="font-size:13px;color:var(--sub);margin-bottom:10px;">
+                    Загрузите файл или вставьте текст со списком штрихкодов. Поддерживаются форматы: TXT, CSV, а также копипаст из Excel/таблиц.
+                </p>
+
+                <!-- Выбор типа операции -->
                 <div class="input-row">
-                    <input type="text" id="receiptBarcode" placeholder="Штрихкод (сканер или вручную)">
-                    <button class="btn btn-outline btn-sm" onclick="addToReceipt()">➕</button>
-                </div>
-                <div style="margin-bottom:8px;">
-                    <label style="font-size:12px;color:var(--sub);">Магазин для приёмки:</label>
-                    <select id="receiptStore">
-                        <option value="main">Основной</option>
-                        <option value="lenina">Ленина</option>
+                    <select id="batchOpType" onchange="updateBatchUI()">
+                        <option value="receipt">📥 Приёмка (добавить на остатки)</option>
+                        <option value="transfer_out">🚚 Перемещение: списать отсюда</option>
                     </select>
                 </div>
-                <div class="table-wrap" id="receiptTableWrap" style="display:none;">
+                <div class="input-row" id="batchStoreRow">
+                    <select id="batchStore">
+                        <option value="main">🏪 Основной</option>
+                        <option value="lenina">🏪 Ленина</option>
+                    </select>
+                </div>
+                <div class="input-row hidden" id="batchTransferToRow">
+                    <select id="batchTransferTo">
+                        <option value="lenina">Куда: Ленина</option>
+                        <option value="main">Куда: Основной</option>
+                    </select>
+                </div>
+
+                <!-- Зона загрузки файла -->
+                <div class="file-area" id="fileDropArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="icon">📁</div>
+                    <div class="text">Нажмите или перетащите файл со штрихкодами<br><small>TXT, CSV — штрихкоды через запятую, пробел или с новой строки</small></div>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.csv,.tsv" style="display:none;" onchange="handleFileUpload(event)">
+
+                <div style="text-align:center;color:var(--sub);font-size:13px;margin:8px 0;">— или —</div>
+
+                <!-- Текстовое поле -->
+                <textarea id="batchText" placeholder="Вставьте список штрихкодов сюда...&#10;&#10;Например:&#10;4810000001&#10;4810000002&#10;4810000001&#10;4810000003"></textarea>
+                <button class="btn btn-primary" style="margin-top:8px;" onclick="parseBatchText()">🔍 Обработать список</button>
+            </div>
+
+            <!-- Результаты парсинга -->
+            <div class="card hidden" id="batchResultCard">
+                <h2>📊 Результат обработки</h2>
+                <div id="batchSummary"></div>
+                <div class="table-wrap" id="batchTableWrap" style="display:none;">
                     <table>
-                        <thead><tr><th>Штрихкод</th><th>Артикул</th><th>Название</th><th>Размер</th><th>Кол-во</th></tr></thead>
-                        <tbody id="receiptBody"></tbody>
+                        <thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во в списке</th><th>В наличии</th><th>Статус</th></tr></thead>
+                        <tbody id="batchTableBody"></tbody>
                     </table>
+                </div>
+                <div class="btn-group" style="margin-top:12px;">
+                    <button class="btn btn-success" id="confirmBatchBtn" onclick="confirmBatchOperation()">✅ Подтвердить операцию</button>
+                    <button class="btn btn-outline" onclick="clearBatch()">🗑 Очистить</button>
+                </div>
+            </div>
+
+            <!-- Ручная приёмка -->
+            <div class="card">
+                <h2>📥 Ручная приёмка (поштучно)</h2>
+                <div class="input-row">
+                    <input type="text" id="receiptBarcode" placeholder="Штрихкод">
+                    <button class="btn btn-outline btn-sm" onclick="addToReceipt()">➕</button>
+                </div>
+                <select id="receiptStore" style="margin-bottom:8px;">
+                    <option value="main">Принять в: Основной</option>
+                    <option value="lenina">Принять в: Ленина</option>
+                </select>
+                <div class="table-wrap" id="receiptTableWrap" style="display:none;">
+                    <table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead>
+                        <tbody id="receiptBody"></tbody></table>
                 </div>
                 <p id="receiptCount" style="font-size:12px;color:var(--sub);"></p>
                 <button class="btn btn-primary" id="finishReceiptBtn" style="display:none;" onclick="finishReceipt()">✅ Завершить приёмку</button>
                 <button class="btn btn-outline btn-sm" id="clearReceiptBtn" style="display:none;" onclick="clearReceipt()">🗑 Очистить</button>
             </div>
 
+            <!-- Ручное перемещение -->
             <div class="card">
-                <h2><span class="icon">🚚</span> Перемещение</h2>
+                <h2>🚚 Ручное перемещение (поштучно)</h2>
                 <div class="input-row">
-                    <select id="transferFrom">
-                        <option value="main">Откуда: Основной</option>
-                        <option value="lenina">Откуда: Ленина</option>
-                    </select>
-                    <select id="transferTo">
-                        <option value="lenina">Куда: Ленина</option>
-                        <option value="main">Куда: Основной</option>
-                    </select>
+                    <select id="transferFrom"><option value="main">Откуда: Основной</option><option value="lenina">Откуда: Ленина</option></select>
+                    <select id="transferTo"><option value="lenina">Куда: Ленина</option><option value="main">Куда: Основной</option></select>
                 </div>
                 <div class="input-row">
-                    <input type="text" id="transferBarcode" placeholder="Штрихкод товара">
+                    <input type="text" id="transferBarcode" placeholder="Штрихкод">
                     <button class="btn btn-outline btn-sm" onclick="addToTransfer()">➕</button>
                 </div>
                 <div class="table-wrap" id="transferTableWrap" style="display:none;">
-                    <table>
-                        <thead><tr><th>Штрихкод</th><th>Артикул</th><th>Название</th><th>Размер</th><th>Кол-во</th></tr></thead>
-                        <tbody id="transferBody"></tbody>
-                    </table>
+                    <table><thead><tr><th>Штрихкод</th><th>Товар</th><th>Размер</th><th>Кол-во</th></tr></thead>
+                        <tbody id="transferBody"></tbody></table>
                 </div>
                 <button class="btn btn-primary" id="finishTransferBtn" style="display:none;" onclick="finishTransfer()">🚚 Выполнить перемещение</button>
                 <button class="btn btn-outline btn-sm" id="clearTransferBtn" style="display:none;" onclick="clearTransfer()">🗑 Очистить</button>
@@ -492,65 +598,42 @@
     <div class="modal-overlay hidden" id="sellModal">
         <div class="modal">
             <h3>💰 Списание — продажа</h3>
-            <div class="input-row">
-                <input type="text" id="sellBarcode" placeholder="Штрихкод">
-                <button class="btn btn-outline btn-sm" onclick="lookupSell()">🔍</button>
-            </div>
+            <div class="input-row"><input type="text" id="sellBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="lookupSell()">🔍</button></div>
             <div id="sellInfo" style="font-size:13px;margin:8px 0;"></div>
-            <select id="sellStore" style="width:100%;margin-bottom:8px;">
-                <option value="main">Списать из: Основной</option>
-                <option value="lenina">Списать из: Ленина</option>
-            </select>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="confirmSell()">✅ Подтвердить продажу</button>
-                <button class="btn btn-outline" onclick="closeSellModal()">Отмена</button>
-            </div>
+            <select id="sellStore" style="margin-bottom:8px;"><option value="main">Списать из: Основной</option><option value="lenina">Списать из: Ленина</option></select>
+            <div class="btn-group"><button class="btn btn-primary" onclick="confirmSell()">✅ Подтвердить</button><button class="btn btn-outline" onclick="closeSellModal()">Отмена</button></div>
         </div>
     </div>
 
     <!-- Модалка: Брак -->
     <div class="modal-overlay hidden" id="writeoffModal">
         <div class="modal">
-            <h3>🗑 Списание — брак / повреждение</h3>
-            <div class="input-row">
-                <input type="text" id="writeoffBarcode" placeholder="Штрихкод">
-                <button class="btn btn-outline btn-sm" onclick="lookupWriteoff()">🔍</button>
-            </div>
+            <h3>🗑 Списание — брак</h3>
+            <div class="input-row"><input type="text" id="writeoffBarcode" placeholder="Штрихкод"><button class="btn btn-outline btn-sm" onclick="lookupWriteoff()">🔍</button></div>
             <div id="writeoffInfo" style="font-size:13px;margin:8px 0;"></div>
-            <select id="writeoffStore" style="width:100%;margin-bottom:8px;">
-                <option value="main">Списать из: Основной</option>
-                <option value="lenina">Списать из: Ленина</option>
-            </select>
-            <div class="btn-group">
-                <button class="btn btn-danger" onclick="confirmWriteoff()">✅ Списать брак</button>
-                <button class="btn btn-outline" onclick="closeWriteoffModal()">Отмена</button>
-            </div>
+            <select id="writeoffStore" style="margin-bottom:8px;"><option value="main">Списать из: Основной</option><option value="lenina">Списать из: Ленина</option></select>
+            <div class="btn-group"><button class="btn btn-danger" onclick="confirmWriteoff()">✅ Списать брак</button><button class="btn btn-outline" onclick="closeWriteoffModal()">Отмена</button></div>
         </div>
     </div>
 
-    <!-- Тосты -->
     <div id="toast" class="toast hidden"></div>
 
     <script>
         // ==================== ДАННЫЕ ====================
-        const STORES = {
-            main: 'Основной',
-            lenina: 'Ленина'
-        };
-
-        // Ключи для localStorage
+        const STORES = { main: 'Основной', lenina: 'Ленина' };
         const LS_PRODUCTS = 'stockflow_products';
-        const LS_STOCK = 'stockflow_stock'; // { 'barcode': { main: N, lenina: N } }
+        const LS_STOCK = 'stockflow_stock';
 
         let currentStore = 'main';
         let currentTab = 'scan';
-        let receiptItems = []; // { barcode, qty }
+        let receiptItems = [];
         let transferItems = [];
+        let batchParsedItems = []; // [{ barcode, qty, product, available, status }]
+        let batchOperation = null; // { type: 'receipt'|'transfer_out', store, transferTo? }
         let html5QrCode = null;
         let scannerActive = false;
         let lastScanned = '';
 
-        // Демо-данные товаров: { barcode: { article, name, size, price } }
         function getDefaultProducts() {
             return {
                 '4810000001': { article: '3345', name: 'Кардиган серый', size: 'M', price: 3900 },
@@ -561,6 +644,8 @@
                 '4810000006': { article: '7780', name: 'Рубашка белая', size: '42', price: 2800 },
                 '4810000007': { article: '9901', name: 'Платье летнее', size: 'S', price: 5100 },
                 '4810000008': { article: '9901', name: 'Платье летнее', size: 'M', price: 5100 },
+                '4810000009': { article: '6603', name: 'Джинсы прямые', size: '42', price: 4500 },
+                '4810000010': { article: '6603', name: 'Джинсы прямые', size: '44', price: 4500 },
             };
         }
 
@@ -574,45 +659,26 @@
                 '4810000006': { main: 0, lenina: 4 },
                 '4810000007': { main: 2, lenina: 1 },
                 '4810000008': { main: 1, lenina: 0 },
+                '4810000009': { main: 3, lenina: 2 },
+                '4810000010': { main: 0, lenina: 1 },
             };
         }
 
         function loadData() {
-            let products = JSON.parse(localStorage.getItem(LS_PRODUCTS));
-            if (!products) {
-                products = getDefaultProducts();
-                saveProducts(products);
-            }
-            let stock = JSON.parse(localStorage.getItem(LS_STOCK));
-            if (!stock) {
-                stock = getDefaultStock();
-                saveStock(stock);
-            }
-            return { products, stock };
+            if (!localStorage.getItem(LS_PRODUCTS)) localStorage.setItem(LS_PRODUCTS, JSON.stringify(
+                getDefaultProducts()));
+            if (!localStorage.getItem(LS_STOCK)) localStorage.setItem(LS_STOCK, JSON.stringify(getDefaultStock()));
         }
 
-        function saveProducts(products) {
-            localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
-        }
+        function getProducts() { return JSON.parse(localStorage.getItem(LS_PRODUCTS)); }
 
-        function saveStock(stock) {
-            localStorage.setItem(LS_STOCK, JSON.stringify(stock));
-        }
+        function getStock() { return JSON.parse(localStorage.getItem(LS_STOCK)); }
 
-        function getProducts() {
-            return JSON.parse(localStorage.getItem(LS_PRODUCTS)) || getDefaultProducts();
-        }
-
-        function getStock() {
-            return JSON.parse(localStorage.getItem(LS_STOCK)) || getDefaultStock();
-        }
+        function saveStock(stock) { localStorage.setItem(LS_STOCK, JSON.stringify(stock)); }
 
         function getStockQty(barcode, store) {
             const stock = getStock();
-            if (stock[barcode] && stock[barcode][store] !== undefined) {
-                return stock[barcode][store];
-            }
-            return 0;
+            return (stock[barcode] && stock[barcode][store]) ? stock[barcode][store] : 0;
         }
 
         function setStockQty(barcode, store, qty) {
@@ -623,17 +689,16 @@
         }
 
         function addStockQty(barcode, store, delta) {
-            const current = getStockQty(barcode, store);
-            setStockQty(barcode, store, current + delta);
+            setStockQty(barcode, store, getStockQty(barcode, store) + delta);
         }
 
         // ==================== ТОСТЫ ====================
         function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.remove('hidden');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => toast.classList.add('hidden'), 2000);
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.remove('hidden');
+            clearTimeout(t._t);
+            t._t = setTimeout(() => t.classList.add('hidden'), 2200);
         }
 
         // ==================== МАГАЗИН ====================
@@ -645,70 +710,41 @@
             showToast('Магазин: ' + STORES[currentStore]);
         }
 
-        function updateStoreUI() {
-            document.getElementById('currentStoreLabel').textContent = STORES[currentStore];
-            document.getElementById('stockStoreLabel').textContent = STORES[currentStore];
-        }
-
         // ==================== ТАБЫ ====================
         function switchTab(tab) {
             currentTab = tab;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-scan').classList.add('hidden');
-            document.getElementById('tab-stock').classList.add('hidden');
-            document.getElementById('tab-ops').classList.add('hidden');
-
-            if (tab === 'scan') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
-                document.getElementById('tab-scan').classList.remove('hidden');
-                startScanner();
-            } else if (tab === 'stock') {
-                document.querySelectorAll('.tab')[1].classList.add('active');
-                document.getElementById('tab-stock').classList.remove('hidden');
-                stopScanner();
-                renderStockTable();
-            } else if (tab === 'ops') {
-                document.querySelectorAll('.tab')[2].classList.add('active');
-                document.getElementById('tab-ops').classList.remove('hidden');
-                stopScanner();
-            }
+            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === ['scan', 'stock',
+                'ops'
+            ].indexOf(tab)));
+            document.getElementById('tab-scan').classList.toggle('hidden', tab !== 'scan');
+            document.getElementById('tab-stock').classList.toggle('hidden', tab !== 'stock');
+            document.getElementById('tab-ops').classList.toggle('hidden', tab !== 'ops');
+            if (tab === 'scan') startScanner();
+            else stopScanner();
+            if (tab === 'stock') renderStockTable();
         }
 
         // ==================== СКАНЕР ====================
         function startScanner() {
             if (scannerActive) return;
-            const readerEl = document.getElementById('reader');
-            if (!readerEl || readerEl.offsetParent === null) return;
-
+            const el = document.getElementById('reader');
+            if (!el || el.offsetParent === null) return;
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, {
-                    fps: 10,
-                    qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.5
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 },
+                    aspectRatio: 1.5 },
+                (text) => {
+                    if (text !== lastScanned) { lastScanned = text;
+                        onBarcodeScanned(text.trim());
+                        setTimeout(() => lastScanned = '', 1500); }
                 },
-                (decodedText) => {
-                    if (decodedText !== lastScanned) {
-                        lastScanned = decodedText;
-                        onBarcodeScanned(decodedText.trim());
-                        // сброс через 1.5 сек чтобы можно было тот же штрихкод сканировать снова
-                        setTimeout(() => { lastScanned = ''; }, 1500);
-                    }
-                },
-                (errorMessage) => { /* игнорируем */ }
-            ).then(() => {
-                scannerActive = true;
-            }).catch(err => {
-                console.warn('Сканер не запустился:', err);
-                scannerActive = false;
-            });
+                () => {}
+            ).then(() => scannerActive = true).catch(() => scannerActive = false);
         }
 
         function stopScanner() {
             if (html5QrCode && scannerActive) {
-                html5QrCode.stop().then(() => {
-                    scannerActive = false;
-                    document.getElementById('reader').innerHTML = '';
-                }).catch(e => console.warn(e));
+                html5QrCode.stop().then(() => { scannerActive = false;
+                    document.getElementById('reader').innerHTML = ''; }).catch(() => {});
             }
         }
 
@@ -718,67 +754,53 @@
             showProductInfo(barcode);
         }
 
-        function manualScan() {
-            const barcode = document.getElementById('manualBarcode').value.trim();
-            if (!barcode) return;
-            onBarcodeScanned(barcode);
-        }
+        function manualScan() { const b = document.getElementById('manualBarcode').value.trim(); if (b)
+                onBarcodeScanned(b); }
 
         function showProductInfo(barcode) {
             const products = getProducts();
-            const product = products[barcode];
+            const p = products[barcode];
             const container = document.getElementById('foundProduct');
             const resultEl = document.getElementById('scanResult');
-
-            if (!product) {
+            if (!p) {
                 container.classList.add('hidden');
-                resultEl.textContent = 'Штрихкод: ' + barcode + ' — не найден в базе';
+                resultEl.textContent = 'Штрихкод: ' + barcode + ' — не найден';
                 resultEl.className = 'scan-result not-found';
                 return;
             }
-
             resultEl.textContent = 'Штрихкод: ' + barcode;
             resultEl.className = 'scan-result found';
-
-            const mainQty = getStockQty(barcode, 'main');
-            const leninaQty = getStockQty(barcode, 'lenina');
-            const currentQty = getStockQty(barcode, currentStore);
-
+            const mq = getStockQty(barcode, 'main');
+            const lq = getStockQty(barcode, 'lenina');
+            const cq = getStockQty(barcode, currentStore);
             container.classList.remove('hidden');
             container.className = 'product-found';
             container.innerHTML = `
-            <div class="name">${product.name}</div>
-            <div class="meta">Арт. ${product.article} | Размер: ${product.size} | Цена: ${product.price} ₽</div>
+            <div class="name">${p.name}</div>
+            <div class="meta">Арт. ${p.article} | Размер: ${p.size} | Цена: ${p.price} ₽</div>
             <div class="stock-info">
-              <span class="stock-chip current">📍 ${STORES[currentStore]}: <b>${currentQty} шт.</b></span>
-              <span class="stock-chip">🏪 Основной: ${mainQty} шт.</span>
-              <span class="stock-chip">🏪 Ленина: ${leninaQty} шт.</span>
+              <span class="stock-chip current">📍 ${STORES[currentStore]}: <b>${cq} шт.</b></span>
+              <span class="stock-chip">🏪 Осн: ${mq} шт.</span>
+              <span class="stock-chip">🏪 Лен: ${lq} шт.</span>
             </div>
             <div class="btn-group" style="margin-top:10px;">
-              <button class="btn btn-danger btn-sm" onclick="quickWriteoff('${barcode}')">🗑 Списать 1 шт.</button>
-              <button class="btn btn-outline btn-sm" onclick="quickSell('${barcode}')">💰 Продать 1 шт.</button>
-            </div>
-          `;
+              <button class="btn btn-danger btn-sm" onclick="quickWriteoff('${barcode}')">🗑 Списать 1</button>
+              <button class="btn btn-outline btn-sm" onclick="quickSell('${barcode}')">💰 Продать 1</button>
+            </div>`;
         }
 
         function quickWriteoff(barcode) {
-            if (getStockQty(barcode, currentStore) <= 0) {
-                showToast('❌ Нет в наличии в этом магазине');
-                return;
-            }
+            if (getStockQty(barcode, currentStore) <= 0) { showToast('❌ Нет в наличии'); return; }
             addStockQty(barcode, currentStore, -1);
-            showToast('🗑 Списано: ' + (getProducts()[barcode]?.name || barcode));
+            showToast('🗑 Списано');
             showProductInfo(barcode);
             renderStockTable();
         }
 
         function quickSell(barcode) {
-            if (getStockQty(barcode, currentStore) <= 0) {
-                showToast('❌ Нет в наличии в этом магазине');
-                return;
-            }
+            if (getStockQty(barcode, currentStore) <= 0) { showToast('❌ Нет в наличии'); return; }
             addStockQty(barcode, currentStore, -1);
-            showToast('💰 Продано: ' + (getProducts()[barcode]?.name || barcode));
+            showToast('💰 Продано');
             showProductInfo(barcode);
             renderStockTable();
         }
@@ -790,310 +812,419 @@
             const search = (document.getElementById('stockSearch')?.value || '').toLowerCase();
             const tbody = document.querySelector('#stockTable tbody');
             tbody.innerHTML = '';
-
             let count = 0;
             Object.entries(stock).forEach(([barcode, stores]) => {
-                const product = products[barcode];
-                if (!product) return;
+                const p = products[barcode];
+                if (!p) return;
                 const qty = stores[currentStore] || 0;
-                // Фильтр
-                if (search && !product.name.toLowerCase().includes(search) && !product.article.toLowerCase()
-                    .includes(search) && !barcode.includes(search)) {
-                    return;
-                }
+                if (search && !p.name.toLowerCase().includes(search) && !p.article.toLowerCase().includes(
+                        search) && !barcode.includes(search)) return;
                 count++;
-                let stockClass = 'stock-zero';
-                if (qty > 3) stockClass = 'stock-ok';
-                else if (qty > 0) stockClass = 'stock-low';
-
+                let cls = 'stock-zero';
+                if (qty > 3) cls = 'stock-ok';
+                else if (qty > 0) cls = 'stock-low';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-              <td>${product.article}</td>
-              <td>${product.name}</td>
-              <td>${product.size}</td>
-              <td>${product.price} ₽</td>
-              <td class="stock-cell ${stockClass}">${qty}</td>
+              <td>${p.article}</td><td>${p.name}</td><td>${p.size}</td><td>${p.price} ₽</td>
+              <td class="stock-cell ${cls}">${qty}</td>
               <td>
-                <button class="btn btn-outline btn-sm" onclick="quickSellFromTable('${barcode}')" style="font-size:11px;padding:4px 8px;">💰</button>
-                <button class="btn btn-danger btn-sm" onclick="quickWriteoffFromTable('${barcode}')" style="font-size:11px;padding:4px 8px;">🗑</button>
-              </td>
-            `;
+                <button class="btn btn-outline btn-xs" onclick="quickSellFromTable('${barcode}')">💰</button>
+                <button class="btn btn-danger btn-xs" onclick="quickWriteoffFromTable('${barcode}')">🗑</button>
+              </td>`;
                 tbody.appendChild(tr);
             });
             document.getElementById('stockCount').textContent = 'Показано: ' + count + ' позиций';
         }
 
-        function quickSellFromTable(barcode) {
-            quickSell(barcode);
-            renderStockTable();
-        }
+        function quickSellFromTable(b) { quickSell(b);
+            renderStockTable(); }
 
-        function quickWriteoffFromTable(barcode) {
-            quickWriteoff(barcode);
-            renderStockTable();
-        }
+        function quickWriteoffFromTable(b) { quickWriteoff(b);
+            renderStockTable(); }
 
-        // ==================== ПРИЁМКА ====================
+        // ==================== РУЧНАЯ ПРИЁМКА ====================
         function addToReceipt() {
-            const barcode = document.getElementById('receiptBarcode').value.trim();
-            if (!barcode) return;
-            const products = getProducts();
-            if (!products[barcode]) {
-                showToast('❌ Товар не найден в базе');
-                return;
-            }
-            const existing = receiptItems.find(i => i.barcode === barcode);
-            if (existing) {
-                existing.qty++;
-            } else {
-                receiptItems.push({ barcode, qty: 1 });
-            }
+            const b = document.getElementById('receiptBarcode').value.trim();
+            if (!b) return;
+            if (!getProducts()[b]) { showToast('❌ Не найден'); return; }
+            const ex = receiptItems.find(i => i.barcode === b);
+            ex ? ex.qty++ : receiptItems.push({ barcode: b, qty: 1 });
             document.getElementById('receiptBarcode').value = '';
             renderReceipt();
-            showToast('➕ Добавлено: ' + products[barcode].name);
         }
 
         function renderReceipt() {
             const products = getProducts();
             const tbody = document.getElementById('receiptBody');
             const wrap = document.getElementById('receiptTableWrap');
-            const finishBtn = document.getElementById('finishReceiptBtn');
-            const clearBtn = document.getElementById('clearReceiptBtn');
-            const countEl = document.getElementById('receiptCount');
-
-            if (receiptItems.length === 0) {
-                wrap.style.display = 'none';
-                finishBtn.style.display = 'none';
-                clearBtn.style.display = 'none';
-                countEl.textContent = '';
-                return;
-            }
+            const fb = document.getElementById('finishReceiptBtn');
+            const cb = document.getElementById('clearReceiptBtn');
+            const ce = document.getElementById('receiptCount');
+            if (!receiptItems.length) { wrap.style.display = 'none';
+                fb.style.display = 'none';
+                cb.style.display = 'none';
+                ce.textContent = ''; return; }
             wrap.style.display = 'block';
-            finishBtn.style.display = 'inline-flex';
-            clearBtn.style.display = 'inline-flex';
+            fb.style.display = 'inline-flex';
+            cb.style.display = 'inline-flex';
             tbody.innerHTML = '';
             let total = 0;
-            receiptItems.forEach(item => {
-                const p = products[item.barcode] || { article: '?', name: 'Неизвестно', size: '?' };
-                total += item.qty;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-              <td>${item.barcode}</td>
-              <td>${p.article}</td>
-              <td>${p.name}</td>
-              <td>${p.size}</td>
-              <td><b>${item.qty}</b></td>
-            `;
-                tbody.appendChild(tr);
+            receiptItems.forEach(i => {
+                const p = products[i.barcode] || { article: '?', name: '?', size: '?' };
+                total += i.qty;
+                tbody.innerHTML +=
+                    `<tr><td>${i.barcode}</td><td>${p.name}</td><td>${p.size}</td><td><b>${i.qty}</b></td></tr>`;
             });
-            countEl.textContent = 'Всего: ' + total + ' ед.';
+            ce.textContent = 'Всего: ' + total + ' ед.';
         }
 
         function finishReceipt() {
-            if (receiptItems.length === 0) return;
+            if (!receiptItems.length) return;
             const store = document.getElementById('receiptStore').value;
-            receiptItems.forEach(item => {
-                addStockQty(item.barcode, store, item.qty);
-            });
-            showToast('✅ Приёмка завершена: ' + receiptItems.length + ' позиций в ' + STORES[store]);
+            receiptItems.forEach(i => addStockQty(i.barcode, store, i.qty));
+            showToast('✅ Приёмка: ' + receiptItems.length + ' позиций → ' + STORES[store]);
             clearReceipt();
             renderStockTable();
         }
 
-        function clearReceipt() {
-            receiptItems = [];
-            renderReceipt();
-        }
+        function clearReceipt() { receiptItems = [];
+            renderReceipt(); }
 
-        // ==================== ПЕРЕМЕЩЕНИЕ ====================
+        // ==================== РУЧНОЕ ПЕРЕМЕЩЕНИЕ ====================
         function addToTransfer() {
-            const barcode = document.getElementById('transferBarcode').value.trim();
-            if (!barcode) return;
-            const products = getProducts();
-            if (!products[barcode]) {
-                showToast('❌ Товар не найден в базе');
-                return;
-            }
-            const existing = transferItems.find(i => i.barcode === barcode);
-            if (existing) {
-                existing.qty++;
-            } else {
-                transferItems.push({ barcode, qty: 1 });
-            }
+            const b = document.getElementById('transferBarcode').value.trim();
+            if (!b) return;
+            if (!getProducts()[b]) { showToast('❌ Не найден'); return; }
+            const ex = transferItems.find(i => i.barcode === b);
+            ex ? ex.qty++ : transferItems.push({ barcode: b, qty: 1 });
             document.getElementById('transferBarcode').value = '';
             renderTransfer();
-            showToast('➕ Добавлено: ' + products[barcode].name);
         }
 
         function renderTransfer() {
             const products = getProducts();
             const tbody = document.getElementById('transferBody');
             const wrap = document.getElementById('transferTableWrap');
-            const finishBtn = document.getElementById('finishTransferBtn');
-            const clearBtn = document.getElementById('clearTransferBtn');
-
-            if (transferItems.length === 0) {
-                wrap.style.display = 'none';
-                finishBtn.style.display = 'none';
-                clearBtn.style.display = 'none';
-                return;
-            }
+            const fb = document.getElementById('finishTransferBtn');
+            const cb = document.getElementById('clearTransferBtn');
+            if (!transferItems.length) { wrap.style.display = 'none';
+                fb.style.display = 'none';
+                cb.style.display = 'none'; return; }
             wrap.style.display = 'block';
-            finishBtn.style.display = 'inline-flex';
-            clearBtn.style.display = 'inline-flex';
+            fb.style.display = 'inline-flex';
+            cb.style.display = 'inline-flex';
             tbody.innerHTML = '';
-            transferItems.forEach(item => {
-                const p = products[item.barcode] || { article: '?', name: 'Неизвестно', size: '?' };
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-              <td>${item.barcode}</td>
-              <td>${p.article}</td>
-              <td>${p.name}</td>
-              <td>${p.size}</td>
-              <td><b>${item.qty}</b></td>
-            `;
-                tbody.appendChild(tr);
+            transferItems.forEach(i => {
+                const p = products[i.barcode] || { article: '?', name: '?', size: '?' };
+                tbody.innerHTML +=
+                    `<tr><td>${i.barcode}</td><td>${p.name}</td><td>${p.size}</td><td><b>${i.qty}</b></td></tr>`;
             });
         }
 
         function finishTransfer() {
-            if (transferItems.length === 0) return;
+            if (!transferItems.length) return;
             const from = document.getElementById('transferFrom').value;
             const to = document.getElementById('transferTo').value;
-            if (from === to) {
-                showToast('❌ Откуда и куда совпадают');
-                return;
-            }
-            // Проверяем наличие
-            let hasError = false;
-            transferItems.forEach(item => {
-                const available = getStockQty(item.barcode, from);
-                if (available < item.qty) {
-                    showToast('❌ Не хватает в ' + STORES[from] + ': ' + (getProducts()[item.barcode]?.name ||
-                        item.barcode));
-                    hasError = true;
-                }
+            if (from === to) { showToast('❌ Совпадают'); return; }
+            let err = false;
+            transferItems.forEach(i => {
+                if (getStockQty(i.barcode, from) < i.qty) { showToast('❌ Не хватает в ' + STORES[from] + ': ' + (
+                        getProducts()[i.barcode]?.name || i.barcode));
+                    err = true; }
             });
-            if (hasError) return;
-
-            transferItems.forEach(item => {
-                addStockQty(item.barcode, from, -item.qty);
-                addStockQty(item.barcode, to, item.qty);
-            });
-            showToast('🚚 Перемещено: ' + transferItems.length + ' позиций → ' + STORES[to]);
+            if (err) return;
+            transferItems.forEach(i => { addStockQty(i.barcode, from, -i.qty);
+                addStockQty(i.barcode, to, i.qty); });
+            showToast('🚚 Перемещено → ' + STORES[to]);
             clearTransfer();
             renderStockTable();
         }
 
-        function clearTransfer() {
-            transferItems = [];
-            renderTransfer();
+        function clearTransfer() { transferItems = [];
+            renderTransfer(); }
+
+        // ==================== ПАКЕТНАЯ ЗАГРУЗКА ====================
+        function updateBatchUI() {
+            const type = document.getElementById('batchOpType').value;
+            document.getElementById('batchStoreRow').classList.toggle('hidden', false);
+            document.getElementById('batchTransferToRow').classList.toggle('hidden', type === 'receipt');
         }
 
-        // ==================== МОДАЛКИ СПИСАНИЯ ====================
-        function openSellModal() {
-            document.getElementById('sellModal').classList.remove('hidden');
+        function parseBarcodesFromText(text) {
+            // Разделяем по запятым, точкам с запятой, пробелам, табуляции, новым строкам
+            const parts = text.split(/[\s,;\t\n\r]+/).filter(s => s.length > 0);
+            const counts = {};
+            parts.forEach(p => {
+                const trimmed = p.trim();
+                if (trimmed) counts[trimmed] = (counts[trimmed] || 0) + 1;
+            });
+            return counts; // { barcode: qty }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                document.getElementById('batchText').value = text;
+                parseBatchText();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseBatchText() {
+            const text = document.getElementById('batchText').value.trim();
+            if (!text) { showToast('❌ Вставьте текст или загрузите файл'); return; }
+            const counts = parseBarcodesFromText(text);
+            const barcodes = Object.keys(counts);
+            if (barcodes.length === 0) { showToast('❌ Штрихкоды не найдены'); return; }
+
+            const type = document.getElementById('batchOpType').value;
+            const store = document.getElementById('batchStore').value;
+            const transferTo = type === 'transfer_out' ? document.getElementById('batchTransferTo').value : null;
+            const products = getProducts();
+
+            batchParsedItems = [];
+            let totalQty = 0;
+            let foundCount = 0;
+            let unknownCount = 0;
+            let lowStockCount = 0;
+
+            barcodes.forEach(barcode => {
+                const qty = counts[barcode];
+                const product = products[barcode] || null;
+                const available = type === 'receipt' ? 9999 : getStockQty(barcode, store);
+                let status = 'ok'; // ok, unknown, low
+
+                if (!product) {
+                    status = 'unknown';
+                    unknownCount++;
+                } else if (type === 'transfer_out' && available < qty) {
+                    status = 'low';
+                    lowStockCount++;
+                }
+                if (product) foundCount++;
+                totalQty += qty;
+
+                batchParsedItems.push({
+                    barcode,
+                    qty,
+                    product,
+                    available: type === 'receipt' ? '—' : available,
+                    status
+                });
+            });
+
+            batchOperation = { type, store, transferTo };
+            renderBatchResult();
+            showToast(`🔍 Найдено: ${barcodes.length} уникальных штрихкодов, ${totalQty} ед.`);
+        }
+
+        function renderBatchResult() {
+            const card = document.getElementById('batchResultCard');
+            const summary = document.getElementById('batchSummary');
+            const wrap = document.getElementById('batchTableWrap');
+            const tbody = document.getElementById('batchTableBody');
+            const confirmBtn = document.getElementById('confirmBatchBtn');
+
+            if (!batchParsedItems.length) { card.classList.add('hidden'); return; }
+            card.classList.remove('hidden');
+
+            const totalQty = batchParsedItems.reduce((s, i) => s + i.qty, 0);
+            const unique = batchParsedItems.length;
+            const unknown = batchParsedItems.filter(i => i.status === 'unknown').length;
+            const low = batchParsedItems.filter(i => i.status === 'low').length;
+
+            summary.innerHTML = `
+            <div class="summary-row"><span>Уникальных штрихкодов:</span><b>${unique}</b></div>
+            <div class="summary-row"><span>Всего единиц:</span><b>${totalQty}</b></div>
+            <div class="summary-row"><span>Найдено в базе:</span><span class="tag tag-ok">${unique - unknown}</span></div>
+            ${unknown > 0 ? `<div class="summary-row"><span>Не найдено в базе:</span><span class="tag tag-err">${unknown}</span></div>` : ''}
+            ${low > 0 ? `<div class="summary-row"><span>Не хватает остатков:</span><span class="tag tag-warn">${low}</span></div>` : ''}
+            <div class="summary-row total"><span>Операция:</span><span>${batchOperation.type === 'receipt' ? '📥 Приёмка в ' + STORES[batchOperation.store] : '🚚 Перемещение ' + STORES[batchOperation.store] + ' → ' + STORES[batchOperation.transferTo]}</span></div>
+          `;
+
+            if (batchParsedItems.length > 20) {
+                wrap.style.display = 'block';
+                tbody.innerHTML = batchParsedItems.slice(0, 20).map(i => {
+                    const p = i.product;
+                    let statusTag = '<span class="tag tag-ok">✓</span>';
+                    if (i.status === 'unknown') statusTag = '<span class="tag tag-unknown">Неизв.</span>';
+                    if (i.status === 'low') statusTag = '<span class="tag tag-warn">Мало</span>';
+                    return `<tr>
+                <td>${i.barcode}</td>
+                <td>${p ? p.name : '—'}</td>
+                <td>${p ? p.size : '—'}</td>
+                <td><b>${i.qty}</b></td>
+                <td>${i.available}</td>
+                <td>${statusTag}</td>
+              </tr>`;
+                }).join('');
+                if (batchParsedItems.length > 20) {
+                    tbody.innerHTML +=
+                        `<tr><td colspan="6" style="text-align:center;color:var(--sub);">… и ещё ${batchParsedItems.length - 20} позиций</td></tr>`;
+                }
+            } else {
+                wrap.style.display = 'block';
+                tbody.innerHTML = batchParsedItems.map(i => {
+                    const p = i.product;
+                    let statusTag = '<span class="tag tag-ok">✓</span>';
+                    if (i.status === 'unknown') statusTag = '<span class="tag tag-unknown">Неизв.</span>';
+                    if (i.status === 'low') statusTag = '<span class="tag tag-warn">Мало</span>';
+                    return `<tr>
+                <td>${i.barcode}</td>
+                <td>${p ? p.name : '—'}</td>
+                <td>${p ? p.size : '—'}</td>
+                <td><b>${i.qty}</b></td>
+                <td>${i.available}</td>
+                <td>${statusTag}</td>
+              </tr>`;
+                }).join('');
+            }
+
+            confirmBtn.textContent = batchOperation.type === 'receipt' ? '✅ Подтвердить приёмку' :
+                '🚚 Подтвердить перемещение';
+            confirmBtn.classList.toggle('btn-success', batchOperation.type === 'receipt');
+            confirmBtn.classList.toggle('btn-primary', batchOperation.type !== 'receipt');
+        }
+
+        function confirmBatchOperation() {
+            if (!batchOperation || !batchParsedItems.length) return;
+
+            const { type, store, transferTo } = batchOperation;
+            let hasError = false;
+
+            // Проверка для перемещения
+            if (type === 'transfer_out') {
+                batchParsedItems.forEach(i => {
+                    if (i.status === 'unknown') {
+                        showToast('⚠️ В списке есть неизвестные штрихкоды. Удалите их или проверьте базу.');
+                        hasError = true;
+                    }
+                    if (i.status === 'low') {
+                        showToast('❌ Не хватает остатков: ' + (i.product?.name || i.barcode));
+                        hasError = true;
+                    }
+                });
+                if (hasError) return;
+            }
+
+            // Выполнение
+            if (type === 'receipt') {
+                batchParsedItems.forEach(i => {
+                    addStockQty(i.barcode, store, i.qty);
+                });
+                showToast(`✅ Приёмка: ${batchParsedItems.length} позиций → ${STORES[store]}`);
+            } else if (type === 'transfer_out') {
+                batchParsedItems.forEach(i => {
+                    addStockQty(i.barcode, store, -i.qty);
+                    addStockQty(i.barcode, transferTo, i.qty);
+                });
+                showToast(`🚚 Перемещено: ${batchParsedItems.length} позиций → ${STORES[transferTo]}`);
+            }
+
+            clearBatch();
+            renderStockTable();
+        }
+
+        function clearBatch() {
+            batchParsedItems = [];
+            batchOperation = null;
+            document.getElementById('batchResultCard').classList.add('hidden');
+            document.getElementById('batchText').value = '';
+            document.getElementById('fileInput').value = '';
+        }
+
+        // ==================== МОДАЛКИ ====================
+        function openSellModal() { document.getElementById('sellModal').classList.remove('hidden');
             document.getElementById('sellBarcode').value = '';
-            document.getElementById('sellInfo').textContent = '';
-        }
+            document.getElementById('sellInfo').textContent = ''; }
 
-        function closeSellModal() {
-            document.getElementById('sellModal').classList.add('hidden');
-        }
+        function closeSellModal() { document.getElementById('sellModal').classList.add('hidden'); }
 
         function lookupSell() {
-            const barcode = document.getElementById('sellBarcode').value.trim();
-            if (!barcode) return;
-            const products = getProducts();
-            const p = products[barcode];
-            if (!p) {
-                document.getElementById('sellInfo').textContent = '❌ Товар не найден';
-                return;
-            }
-            const qty = getStockQty(barcode, document.getElementById('sellStore').value);
-            document.getElementById('sellInfo').textContent =
-                `${p.name}, размер ${p.size}, цена ${p.price} ₽ | В наличии: ${qty} шт.`;
+            const b = document.getElementById('sellBarcode').value.trim();
+            if (!b) return;
+            const p = getProducts()[b];
+            document.getElementById('sellInfo').textContent = p ?
+                `${p.name}, разм. ${p.size}, ${p.price} ₽ | В нал.: ${getStockQty(b, document.getElementById('sellStore').value)} шт.` :
+                '❌ Не найден';
         }
 
         function confirmSell() {
-            const barcode = document.getElementById('sellBarcode').value.trim();
-            const store = document.getElementById('sellStore').value;
-            if (!barcode) return;
-            const qty = getStockQty(barcode, store);
-            if (qty <= 0) {
-                showToast('❌ Нет в наличии');
-                return;
-            }
-            addStockQty(barcode, store, -1);
-            showToast('💰 Продано: ' + (getProducts()[barcode]?.name || barcode));
+            const b = document.getElementById('sellBarcode').value.trim();
+            const s = document.getElementById('sellStore').value;
+            if (!b || getStockQty(b, s) <= 0) { showToast('❌ Нет в наличии'); return; }
+            addStockQty(b, s, -1);
+            showToast('💰 Продано');
             closeSellModal();
             renderStockTable();
         }
 
-        function openWriteoffModal() {
-            document.getElementById('writeoffModal').classList.remove('hidden');
+        function openWriteoffModal() { document.getElementById('writeoffModal').classList.remove('hidden');
             document.getElementById('writeoffBarcode').value = '';
-            document.getElementById('writeoffInfo').textContent = '';
-        }
+            document.getElementById('writeoffInfo').textContent = ''; }
 
-        function closeWriteoffModal() {
-            document.getElementById('writeoffModal').classList.add('hidden');
-        }
+        function closeWriteoffModal() { document.getElementById('writeoffModal').classList.add('hidden'); }
 
         function lookupWriteoff() {
-            const barcode = document.getElementById('writeoffBarcode').value.trim();
-            if (!barcode) return;
-            const products = getProducts();
-            const p = products[barcode];
-            if (!p) {
-                document.getElementById('writeoffInfo').textContent = '❌ Товар не найден';
-                return;
-            }
-            const qty = getStockQty(barcode, document.getElementById('writeoffStore').value);
-            document.getElementById('writeoffInfo').textContent =
-                `${p.name}, размер ${p.size} | В наличии: ${qty} шт.`;
+            const b = document.getElementById('writeoffBarcode').value.trim();
+            if (!b) return;
+            const p = getProducts()[b];
+            document.getElementById('writeoffInfo').textContent = p ?
+                `${p.name}, разм. ${p.size} | В нал.: ${getStockQty(b, document.getElementById('writeoffStore').value)} шт.` :
+                '❌ Не найден';
         }
 
         function confirmWriteoff() {
-            const barcode = document.getElementById('writeoffBarcode').value.trim();
-            const store = document.getElementById('writeoffStore').value;
-            if (!barcode) return;
-            const qty = getStockQty(barcode, store);
-            if (qty <= 0) {
-                showToast('❌ Нет в наличии');
-                return;
-            }
-            addStockQty(barcode, store, -1);
-            showToast('🗑 Списано (брак): ' + (getProducts()[barcode]?.name || barcode));
+            const b = document.getElementById('writeoffBarcode').value.trim();
+            const s = document.getElementById('writeoffStore').value;
+            if (!b || getStockQty(b, s) <= 0) { showToast('❌ Нет в наличии'); return; }
+            addStockQty(b, s, -1);
+            showToast('🗑 Списано (брак)');
             closeWriteoffModal();
             renderStockTable();
         }
 
-        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        // ==================== DRAG & DROP ====================
+        function setupDragDrop() {
+            const area = document.getElementById('fileDropArea');
+            if (!area) return;
+            ['dragenter', 'dragover'].forEach(ev => area.addEventListener(ev, e => { e.preventDefault();
+                area.classList.add('drag-over'); }));
+            ['dragleave', 'drop'].forEach(ev => area.addEventListener(ev, e => { e.preventDefault();
+                area.classList.remove('drag-over'); }));
+            area.addEventListener('drop', e => {
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        document.getElementById('batchText').value = ev.target.result;
+                        parseBatchText();
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        // ==================== ИНИТ ====================
         function init() {
             loadData();
-            updateStoreUI();
+            updateBatchUI();
             startScanner();
             renderStockTable();
             renderReceipt();
             renderTransfer();
-
-            // Закрытие модалок по клику на оверлей
-            document.getElementById('sellModal').addEventListener('click', function(e) {
-                if (e.target === this) closeSellModal();
-            });
-            document.getElementById('writeoffModal').addEventListener('click', function(e) {
-                if (e.target === this) closeWriteoffModal();
-            });
+            setupDragDrop();
+            document.getElementById('sellModal').addEventListener('click', e => { if (e.target === document
+                    .getElementById('sellModal')) closeSellModal(); });
+            document.getElementById('writeoffModal').addEventListener('click', e => { if (e.target === document
+                    .getElementById('writeoffModal')) closeWriteoffModal(); });
         }
-
         document.addEventListener('DOMContentLoaded', init);
-
-        // Перезапуск сканера при возвращении на вкладку (если был свёрнут)
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && currentTab === 'scan') {
-                if (!scannerActive) startScanner();
-            }
+            if (document.visibilityState === 'visible' && currentTab === 'scan' && !scannerActive) startScanner();
         });
     </script>
 </body>
